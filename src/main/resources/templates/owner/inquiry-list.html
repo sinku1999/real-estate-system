@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Owner Sale Inquiries | EstateFlow')}"></head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: owner-sidebar('sale-inquiries')}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/topbar :: topbar('Sale Inquiries',
+        'Review customer offers and convert them into successful deals',
+        'Owner Panel')}"></div>
+
+        <!-- HERO -->
+        <section class="admin-page-hero">
+            <div class="admin-page-hero-content">
+                <div class="hero-badge">Deal Management</div>
+                <h2>Turn customer offers into successful deals</h2>
+                <p>
+                    Review offers, negotiate smartly, and move properties toward booking.
+                    This is your deal-closing control center.
+                </p>
+            </div>
+
+            <div class="hero-side-actions">
+                <a th:href="@{/owner/properties}" class="btn-theme">My Properties</a>
+                <a th:href="@{/owner/dashboard}" class="btn-accent">Dashboard</a>
+            </div>
+        </section>
+
+        <!-- STATS -->
+        <div class="dashboard-grid dashboard-grid-top">
+
+            <div class="stat-card stat-card-premium">
+                <h4>Total Inquiries</h4>
+                <h2 th:text="${inquiries != null ? #lists.size(inquiries) : 0}">0</h2>
+                <p>All incoming customer offers</p>
+            </div>
+
+            <div class="stat-card stat-card-premium">
+                <h4>Active Deals</h4>
+                <h2 th:text="${inquiries != null ? #lists.size(inquiries.?[status == 'ACTIVE']) : 0}">0</h2>
+                <p>Open negotiations</p>
+            </div>
+
+            <div class="stat-card stat-card-premium">
+                <h4>Accepted</h4>
+                <h2 th:text="${inquiries != null ? #lists.size(inquiries.?[status == 'ACCEPTED']) : 0}">0</h2>
+                <p>Deals accepted by you</p>
+            </div>
+
+            <div class="stat-card stat-card-premium">
+                <h4>Booked</h4>
+                <h2 th:text="${inquiries != null ? #lists.size(inquiries.?[status == 'BOOKED']) : 0}">0</h2>
+                <p>Completed transactions</p>
+            </div>
+
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content-card admin-glass-card">
+
+            <!-- EMPTY -->
+            <div th:if="${inquiries == null or #lists.isEmpty(inquiries)}" class="empty-state premium-empty-state">
+                <h4>No sale inquiries yet</h4>
+                <p>Customer offers will appear here when someone shows interest in your property.</p>
+            </div>
+
+            <!-- CARDS -->
+            <div th:if="${inquiries != null and !#lists.isEmpty(inquiries)}"
+                 class="property-grid mt-3">
+
+                <div class="property-card-premium enhanced-property-card deal-card"
+                     th:each="inq : ${inquiries}">
+
+                    <div class="property-card-body">
+
+                        <!-- HEADER -->
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                            <h4 class="property-title" th:text="${inq.property.name}">Property Name</h4>
+
+                            <span class="status-badge warning-badge" th:if="${inq.status == 'ACTIVE'}">Active</span>
+                            <span class="status-badge success-badge" th:if="${inq.status == 'ACCEPTED'}">Accepted</span>
+                            <span class="status-badge danger-badge" th:if="${inq.status == 'REJECTED'}">Rejected</span>
+                            <span class="status-badge success-badge" th:if="${inq.status == 'BOOKED'}">Booked</span>
+                        </div>
+
+                        <!-- DETAILS -->
+                        <div class="property-detail-row">
+                            <span>Customer</span>
+                            <strong th:text="${inq.customerEmail}">email</strong>
+                        </div>
+
+                        <div class="property-detail-row highlight-row">
+                            <span>Offer Price</span>
+                            <strong class="highlight-amount" th:text="${'₹' + inq.offerAmount}">₹500000</strong>
+                        </div>
+
+                        <div class="property-detail-row">
+                            <span>Message</span>
+                            <strong th:text="${inq.message != null ? inq.message : 'No message'}">msg</strong>
+                        </div>
+
+                        <div class="property-detail-row">
+                            <span>Token Amount</span>
+                            <strong th:text="${'₹' + inq.tokenAmount}">₹10000</strong>
+                        </div>
+
+                        <div class="property-detail-row">
+                            <span>Token Paid</span>
+                            <strong th:text="${inq.tokenPaid ? 'Yes' : 'No'}">No</strong>
+                        </div>
+
+                        <!-- ACTIONS -->
+                        <div class="deal-action-bar mt-3"
+                             th:if="${inq.status == 'ACTIVE'}">
+
+                            <a th:href="@{/owner/inquiries/accept/{id}(id=${inq.id})}"
+                               class="btn-approve">
+                                Accept Deal
+                            </a>
+
+                            <a th:href="@{/owner/inquiries/reject/{id}(id=${inq.id})}"
+                               class="btn-reject">
+                                Reject
+                            </a>
+
+                        </div>
+
+                        <!-- STATUS INFO -->
+                        <div th:if="${inq.status != 'ACTIVE'}"
+                             class="text-muted small mt-2">
+                            Deal already processed
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>

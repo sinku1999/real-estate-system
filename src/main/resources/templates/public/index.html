@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('EstateFlow | Real Estate Platform')}"></head>
+<body>
+
+<style>
+    :root {
+        --ef-bg: #f6f1e9;
+        --ef-surface: #fffdf9;
+        --ef-surface-soft: #fbf7f0;
+        --ef-border: #e7dccb;
+        --ef-text: #171717;
+        --ef-muted: #6a6256;
+        --ef-green: #1f6f5f;
+        --ef-green-dark: #153d35;
+        --ef-gold: #d4af37;
+        --ef-gold-deep: #b08d57;
+        --ef-shadow: 0 18px 45px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+        background:
+            radial-gradient(circle at top left, rgba(212, 175, 55, 0.10), transparent 24%),
+            radial-gradient(circle at top right, rgba(31, 111, 95, 0.10), transparent 24%),
+            linear-gradient(180deg, #f6f1e9 0%, #eee7dc 100%);
+        color: var(--ef-text);
+    }
+
+    .landing-shell {
+        max-width: 1240px;
+        margin: 0 auto;
+    }
+
+    .landing-topbar {
+        padding-top: 8px;
+    }
+
+    .brand-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .brand-subtitle {
+        font-size: 0.92rem;
+        color: var(--ef-muted);
+        margin: 0;
+    }
+
+    .top-action-btn {
+        border-radius: 14px !important;
+        font-weight: 700 !important;
+        padding: 10px 18px !important;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    .hero-super {
+        position: relative;
+        overflow: hidden;
+        border-radius: 38px;
+        padding: 36px;
+        margin-top: 26px;
+        background:
+            radial-gradient(circle at 15% 18%, rgba(212, 175, 55, 0.20), transparent 24%),
+            radial-gradient(circle at 86% 80%, rgba(255,255,255,0.08), transparent 18%),
+            linear-gradient(135deg, #151210 0%, #12352e 52%, #b08d57 100%);
+        box-shadow: 0 30px 70px rgba(0,0,0,0.16);
+    }
+
+    .hero-super::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+            linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+        background-size: 34px 34px;
+        opacity: 0.16;
+        pointer-events: none;
+    }
+
+    .hero-grid {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 28px;
+        align-items: center;
+    }
+
+    .hero-copy {
+        color: #fff;
+        padding: 18px 6px 18px 6px;
+    }
+
+    .hero-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 18px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.10);
+        border: 1px solid rgba(255,255,255,0.18);
+        backdrop-filter: blur(8px);
+        font-size: 0.92rem;
+        font-weight: 700;
+        margin-bottom: 18px;
+    }
+
+    .hero-copy h1 {
+        font-size: clamp(2.2rem, 4.2vw, 3.9rem);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        margin-bottom: 20px;
+        text-shadow: 0 6px 18px rgba(0,0,0,0.20);
+    }
+
+    .hero-copy p {
+        max-width: 640px;
+        font-size: 1rem;
+        line-height: 1.85;
+        color: rgba(255,255,255,0.90);
+        margin-bottom: 26px;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .hero-btn-primary,
+    .hero-btn-secondary,
+    .hero-btn-accent {
+        text-decoration: none;
+        border-radius: 15px;
+        padding: 13px 20px;
+        min-width: 168px;
+        font-weight: 700;
+        transition: all 0.25s ease;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .hero-btn-primary {
+        background: linear-gradient(135deg, #153d35, #1f6f5f);
+        color: #fff;
+        box-shadow: 0 14px 30px rgba(17, 116, 99, 0.28);
+    }
+
+    .hero-btn-primary:hover {
+        transform: translateY(-2px);
+        color: #fff;
+    }
+
+    .hero-btn-secondary {
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.22);
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(8px);
+    }
+
+    .hero-btn-secondary:hover {
+        transform: translateY(-2px);
+        color: #fff;
+        background: rgba(255,255,255,0.14);
+    }
+
+    .hero-btn-accent {
+        background: linear-gradient(135deg, #b08d57, #d4af37);
+        color: #151515;
+        box-shadow: 0 14px 30px rgba(210, 171, 68, 0.28);
+    }
+
+    .hero-btn-accent:hover {
+        transform: translateY(-2px);
+        color: #151515;
+    }
+
+    .hero-preview {
+        position: relative;
+    }
+
+    .preview-shell {
+        border-radius: 28px;
+        padding: 16px;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.16);
+        backdrop-filter: blur(14px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .preview-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+    }
+
+    .preview-top .dots {
+        display: flex;
+        gap: 8px;
+    }
+
+    .preview-top .dots span {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        background: rgba(255,255,255,0.75);
+    }
+
+    .preview-chip {
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.10);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    .preview-card {
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(249,243,233,0.96));
+        padding: 18px;
+        margin-bottom: 14px;
+        box-shadow: 0 14px 28px rgba(0,0,0,0.08);
+    }
+
+    .preview-card:last-child {
+        margin-bottom: 0;
+    }
+
+    .preview-card h5 {
+        margin-bottom: 6px;
+        font-weight: 800;
+    }
+
+    .preview-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 14px;
+        color: #5f584d;
+        margin-bottom: 14px;
+    }
+
+    .preview-pill-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .preview-pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .preview-pill.green {
+        background: #e8f6f0;
+        color: #165844;
+        border: 1px solid #c7ead7;
+    }
+
+    .preview-pill.gold {
+        background: #fbf2d9;
+        color: #7b5a19;
+        border: 1px solid #ecd79a;
+    }
+
+    .preview-pill.dark {
+        background: #f3efe8;
+        color: #3d332a;
+        border: 1px solid #e4d8c8;
+    }
+
+    .floating-stats {
+        margin-top: -34px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .stats-shell {
+        border-radius: 28px;
+        background: rgba(255,255,255,0.84);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(228, 212, 181, 0.85);
+        box-shadow: var(--ef-shadow);
+        padding: 24px 16px;
+    }
+
+    .stat-mini {
+        text-align: center;
+        padding: 8px 10px;
+    }
+
+    .stat-mini h3 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--ef-green-dark);
+    }
+
+    .stat-mini p {
+        margin: 6px 0 0;
+        color: var(--ef-muted);
+        font-size: 0.94rem;
+    }
+
+    .section-block {
+        margin-top: 28px;
+        border-radius: 30px;
+        padding: 36px 30px;
+        background: linear-gradient(180deg, #fffdf9, #f8f2e9);
+        border: 1px solid var(--ef-border);
+        box-shadow: var(--ef-shadow);
+    }
+
+    .section-dark {
+        background:
+            radial-gradient(circle at top left, rgba(212,175,55,0.12), transparent 24%),
+            linear-gradient(135deg, #171411 0%, #12352e 55%, #9b7d43 100%);
+        border: none;
+        color: #fff;
+    }
+
+    .section-dark .section-title h2,
+    .section-dark .section-title h3,
+    .section-dark .section-title p {
+        color: #fff;
+    }
+
+    .section-dark .section-title p {
+        color: rgba(255,255,255,0.82);
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+    .section-title h2,
+    .section-title h3 {
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        margin-bottom: 8px;
+    }
+
+    .section-title p {
+        color: var(--ef-muted);
+        margin-bottom: 0;
+    }
+
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+    }
+
+    .feature-card-deluxe {
+        border-radius: 26px;
+        padding: 28px 22px;
+        background: linear-gradient(180deg, #ffffff, #fbf7f0);
+        border: 1px solid #e7dccb;
+        box-shadow: 0 16px 30px rgba(0,0,0,0.05);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        height: 100%;
+    }
+
+    .feature-card-deluxe:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 24px 40px rgba(0,0,0,0.08);
+    }
+
+    .section-dark .feature-card-deluxe {
+        background: rgba(255,255,255,0.10);
+        border: 1px solid rgba(255,255,255,0.14);
+        backdrop-filter: blur(8px);
+        box-shadow: none;
+    }
+
+    .section-dark .feature-card-deluxe h4,
+    .section-dark .feature-card-deluxe p {
+        color: #fff;
+    }
+
+    .section-dark .feature-card-deluxe p {
+        color: rgba(255,255,255,0.84);
+    }
+
+    .feature-icon-deluxe {
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0d5a4f, #d0a63f);
+        color: #fff;
+        font-size: 1.4rem;
+        margin-bottom: 16px;
+        box-shadow: 0 14px 24px rgba(0,0,0,0.10);
+    }
+
+    .feature-card-deluxe h4 {
+        font-weight: 900;
+        margin-bottom: 12px;
+    }
+
+    .feature-card-deluxe p {
+        color: var(--ef-muted);
+        line-height: 1.85;
+        margin-bottom: 0;
+    }
+
+    .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+    }
+
+    .step-box {
+        border-radius: 24px;
+        padding: 24px 20px;
+        background: linear-gradient(180deg, #ffffff, #fbf7f0);
+        border: 1px solid rgba(223, 205, 173, 0.75);
+        text-align: center;
+    }
+
+    .step-badge {
+        width: 44px;
+        height: 44px;
+        border-radius: 999px;
+        margin: 0 auto 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--ef-green-dark);
+        color: #fff;
+        font-weight: 900;
+    }
+
+    .step-box h5 {
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .step-box p {
+        margin-bottom: 0;
+        color: var(--ef-muted);
+        line-height: 1.8;
+    }
+
+    .why-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+
+    .why-card {
+        border-radius: 24px;
+        padding: 24px;
+        background: linear-gradient(180deg, #ffffff, #fbf7f0);
+        border: 1px solid rgba(223, 205, 173, 0.75);
+        height: 100%;
+    }
+
+    .why-card ul {
+        margin: 0;
+        padding-left: 1.2rem;
+    }
+
+    .why-card li {
+        margin-bottom: 12px;
+        color: #5d564c;
+    }
+
+    .testimonial-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+    }
+
+    .testimonial-box {
+        border-radius: 22px;
+        padding: 24px 22px;
+        background: linear-gradient(180deg, #ffffff, #fbf7f0);
+        border: 1px solid rgba(223, 205, 173, 0.72);
+        box-shadow: 0 12px 28px rgba(0,0,0,0.04);
+    }
+
+    .testimonial-box p {
+        font-style: italic;
+        color: #5d564c;
+        line-height: 1.85;
+        margin-bottom: 14px;
+    }
+
+    .testimonial-box strong {
+        color: #161616;
+    }
+
+    .faq-wrap .accordion-item {
+        border: 1px solid rgba(223, 205, 173, 0.75);
+        border-radius: 18px !important;
+        overflow: hidden;
+        margin-bottom: 12px;
+        background: #fffdf9;
+    }
+
+    .faq-wrap .accordion-button {
+        background: #fffdf9;
+        color: #151515;
+        font-weight: 800;
+        box-shadow: none !important;
+        padding: 18px 20px;
+    }
+
+    .faq-wrap .accordion-button:not(.collapsed) {
+        background: #f8f2e9;
+        color: var(--ef-green-dark);
+    }
+
+    .faq-wrap .accordion-body {
+        background: #fffdf9;
+        color: var(--ef-muted);
+        line-height: 1.85;
+    }
+
+    .cta-deluxe {
+        position: relative;
+        overflow: hidden;
+        border-radius: 32px;
+        padding: 54px 26px;
+        background:
+            radial-gradient(circle at left top, rgba(255,255,255,0.10), transparent 26%),
+            linear-gradient(135deg, #171411 0%, #12352e 55%, #b08d57 100%);
+        color: #fff;
+        box-shadow: 0 22px 46px rgba(0,0,0,0.10);
+        text-align: center;
+    }
+
+    .cta-deluxe h3 {
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        margin-bottom: 12px;
+    }
+
+    .cta-deluxe p {
+        max-width: 780px;
+        margin: 0 auto 24px;
+        color: rgba(255,255,255,0.92);
+        line-height: 1.85;
+    }
+
+    .footer-deluxe {
+        margin-top: 28px;
+        border-radius: 26px;
+        padding: 30px 24px;
+        background: linear-gradient(180deg, #090909 0%, #121212 100%);
+        color: #d9d9d9;
+        text-align: center;
+        box-shadow: 0 18px 34px rgba(0,0,0,0.12);
+    }
+
+    .footer-deluxe p {
+        margin-bottom: 10px;
+    }
+
+    .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
+    .footer-links a {
+        text-decoration: none;
+        color: #f1eee7;
+    }
+
+    .footer-links a:hover {
+        color: var(--ef-gold);
+    }
+
+    @media (max-width: 991px) {
+        .hero-grid,
+        .feature-grid,
+        .steps-grid,
+        .why-grid,
+        .testimonial-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hero-super {
+            padding: 24px 20px 78px;
+        }
+
+        .floating-stats {
+            margin-top: -24px;
+        }
+    }
+</style>
+
+<div class="container py-4 landing-shell">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 landing-topbar">
+        <div class="brand-wrap">
+            <div class="brand text-dark mb-0">Estate<span>Flow</span></div>
+            <p class="brand-subtitle">Premium property journeys, beautifully managed.</p>
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap">
+            <a th:href="@{/login}" class="btn btn-outline-primary top-action-btn">Login</a>
+            <a th:href="@{/register/owner}" class="btn btn-warning top-action-btn">Register Owner</a>
+            <a th:href="@{/register/customer}" class="btn btn-primary top-action-btn">Register Customer</a>
+        </div>
+    </div>
+
+    <section class="hero-super">
+        <div class="hero-grid">
+            <div class="hero-copy">
+                <div class="hero-chip">✨ Premium real estate workflow for buying, renting, and PG booking</div>
+                <h1>Find, negotiate, rent, buy, and book PG — all in one elegant platform</h1>
+                <p>
+                    EstateFlow brings verified property discovery, smart negotiations, rent booking, PG room selection,
+                    approvals, and wallet-based payments into one refined product experience.
+                </p>
+
+                <div class="hero-actions">
+                    <a th:href="@{/explore}" class="hero-btn-primary">🔍 Explore Properties</a>
+                    <a th:href="@{/dashboard}" class="hero-btn-secondary">Go to Dashboard</a>
+                    <a th:href="@{/register/owner}" class="hero-btn-accent">List Your Property</a>
+                </div>
+            </div>
+
+            <div class="hero-preview">
+                <div class="preview-shell">
+                    <div class="preview-top">
+                        <div class="dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="preview-chip">Live Workflow Preview</div>
+                    </div>
+
+                    <div class="preview-card">
+                        <h5>Premium Sale Inquiry</h5>
+                        <div class="preview-meta">
+                            <span>Offer Sent</span>
+                            <strong>₹41,50,000</strong>
+                        </div>
+                        <div class="preview-pill-row">
+                            <span class="preview-pill green">Active</span>
+                            <span class="preview-pill gold">Negotiation</span>
+                            <span class="preview-pill dark">Owner Review</span>
+                        </div>
+                    </div>
+
+                    <div class="preview-card">
+                        <h5>PG Room Booking</h5>
+                        <div class="preview-meta">
+                            <span>Comfort PG Mumbai</span>
+                            <strong>Room Selected</strong>
+                        </div>
+                        <div class="preview-pill-row">
+                            <span class="preview-pill green">Available</span>
+                            <span class="preview-pill gold">Instant Flow</span>
+                        </div>
+                    </div>
+
+                    <div class="preview-card">
+                        <h5>Wallet Ready</h5>
+                        <div class="preview-meta">
+                            <span>Secure Transactions</span>
+                            <strong>Approval + Payment</strong>
+                        </div>
+                        <div class="preview-pill-row">
+                            <span class="preview-pill dark">Customer</span>
+                            <span class="preview-pill dark">Owner</span>
+                            <span class="preview-pill dark">Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="floating-stats">
+        <div class="stats-shell">
+            <div class="row g-0">
+                <div class="col-md-3 stat-mini">
+                    <h3>3</h3>
+                    <p>Core Workflows</p>
+                </div>
+                <div class="col-md-3 stat-mini">
+                    <h3>24/7</h3>
+                    <p>Accessible Platform</p>
+                </div>
+                <div class="col-md-3 stat-mini">
+                    <h3>100%</h3>
+                    <p>Role-Based Dashboards</p>
+                </div>
+                <div class="col-md-3 stat-mini">
+                    <h3>1</h3>
+                    <p>Unified Experience</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-block mt-4">
+        <div class="section-title">
+            <h2>Built for every modern property journey</h2>
+            <p>From discovery to deal closure, every touchpoint feels structured, premium, and product-driven.</p>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card-deluxe">
+                <div class="feature-icon-deluxe">🏡</div>
+                <h4>Buy / Sell Property</h4>
+                <p>Send inquiries, negotiate with owners, review offers, and move toward smarter deal closure with token support.</p>
+            </div>
+
+            <div class="feature-card-deluxe">
+                <div class="feature-icon-deluxe">🔑</div>
+                <h4>Rent Homes</h4>
+                <p>Book rental homes through a confirmation flow, owner approval, and structured monthly payment readiness.</p>
+            </div>
+
+            <div class="feature-card-deluxe">
+                <div class="feature-icon-deluxe">🛏️</div>
+                <h4>Book PG Rooms & Beds</h4>
+                <p>Choose available PG rooms, compare room options, and complete room-level booking with less confusion.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-block section-dark">
+        <div class="section-title">
+            <h3>How It Works</h3>
+            <p>A premium three-step flow from discovery to completion.</p>
+        </div>
+
+        <div class="steps-grid">
+            <div class="feature-card-deluxe">
+                <div class="feature-icon-deluxe">1</div>
+                <h4>Explore</h4>
+                <p>Browse verified property listings with pricing, visuals, and details that are easy to trust.</p>
+            </div>
+
+            <div class="feature-card-deluxe">
+                <div class="feature-icon-deluxe">2</div>
+                <h4>Connect</h4>
+                <p>Send inquiries, negotiate smartly, choose rooms, or begin rent booking flows with structure.</p>
+            </div>
+
+            <div class="feature-card-deluxe">
+                <div class="feature-icon-deluxe">3</div>
+                <h4>Complete</h4>
+                <p>Move toward approvals, payments, bookings, and dashboard-based tracking with visibility.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-block">
+        <div class="section-title">
+            <h3>Why Choose EstateFlow</h3>
+            <p>Luxury-inspired presentation paired with practical real-estate workflows.</p>
+        </div>
+
+        <div class="why-grid">
+            <div class="why-card">
+                <ul>
+                    <li>Verified property listings</li>
+                    <li>Real-time negotiation system</li>
+                    <li>Wallet-based secure transactions</li>
+                    <li>Premium dashboard experience</li>
+                </ul>
+            </div>
+
+            <div class="why-card">
+                <ul>
+                    <li>PG room booking support</li>
+                    <li>Rent approval workflow</li>
+                    <li>Owner and customer role separation</li>
+                    <li>End-to-end booking visibility</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-block">
+        <div class="section-title">
+            <h3>What Our Users Say</h3>
+            <p>Built to feel trustworthy, polished, and much stronger on first impression.</p>
+        </div>
+
+        <div class="testimonial-grid mt-3">
+            <div class="testimonial-box">
+                <p>"Smooth experience! Found my PG in minutes and the flow felt very organized."</p>
+                <strong>- Rahul</strong>
+            </div>
+
+            <div class="testimonial-box">
+                <p>"The negotiation feature adds real value. It feels much better than random discussions."</p>
+                <strong>- Sneha</strong>
+            </div>
+
+            <div class="testimonial-box">
+                <p>"Very clean interface and a much better first impression than a typical student project app."</p>
+                <strong>- Amit</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-block faq-wrap">
+        <div class="section-title">
+            <h3>Frequently Asked Questions</h3>
+            <p>Quick clarity for new users exploring the platform.</p>
+        </div>
+
+        <div class="accordion mt-3" id="faqAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="faq1">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1">
+                        Is EstateFlow free to use?
+                    </button>
+                </h2>
+                <div id="faqCollapse1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Yes. Browsing listings and exploring the platform are free. Payments apply only when you proceed with bookings or transaction-based actions.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="faq2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2">
+                        How do I contact property owners?
+                    </button>
+                </h2>
+                <div id="faqCollapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        You can send inquiries directly through the platform and continue through a structured negotiation workflow.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="faq3">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3">
+                        Is payment secure?
+                    </button>
+                </h2>
+                <div id="faqCollapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Yes. EstateFlow is designed around role-based workflows and wallet-driven secure transaction handling.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="faq4">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4">
+                        Can I book PG instantly?
+                    </button>
+                </h2>
+                <div id="faqCollapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Yes. You can open a PG listing, view room options, and proceed with room-level booking based on availability.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-deluxe">
+        <h3>Ready to explore a smarter real estate experience?</h3>
+        <p>
+            Join EstateFlow to browse premium listings, manage bookings, and handle negotiations in one clean and professional platform.
+        </p>
+        <div class="hero-actions">
+            <a th:href="@{/register/customer}" class="hero-btn-primary">Create Customer Account</a>
+            <a th:href="@{/register/owner}" class="hero-btn-accent">Join as Property Owner</a>
+        </div>
+    </section>
+
+    <footer class="footer-deluxe">
+        <p>© 2026 EstateFlow. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Support</a>
+            <a th:href="@{/explore}">Explore</a>
+        </div>
+    </footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Rent Bookings | EstateFlow')}"></head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: admin-sidebar('rent-bookings')}"></div>
+
+    <main class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Rent Bookings', 'Review and manage all rent booking requests with premium controls', 'Admin Panel')}"></div>
+
+        <section class="admin-page-hero compact-hero">
+            <div class="admin-page-hero-content">
+                <div class="hero-badge">Rent Booking Control</div>
+                <h2>Oversee rental booking flow with clarity</h2>
+                <p>
+                    Keep rental activity organized by reviewing rent requests, tracking customer-owner
+                    transactions, and monitoring booking progress from one premium screen.
+                </p>
+            </div>
+
+            <div class="hero-side-actions">
+                <a th:href="@{/admin/dashboard}" class="btn-theme">Dashboard</a>
+                <a th:href="@{/admin/sale-inquiries}" class="btn-accent">Sale Inquiries</a>
+            </div>
+        </section>
+
+        <div class="dashboard-grid dashboard-grid-top">
+            <div class="stat-card stat-card-premium">
+                <h4>Total Rent Bookings</h4>
+                <h2 th:text="${bookings != null ? #lists.size(bookings) : 0}">0</h2>
+                <p>All rent requests submitted on the platform</p>
+            </div>
+
+            <div class="stat-card stat-card-premium">
+                <h4>Approved</h4>
+                <h2 th:text="${bookings != null ? #lists.size(bookings.?[status == 'APPROVED']) : 0}">0</h2>
+                <p>Confirmed rental bookings</p>
+            </div>
+
+            <div class="stat-card stat-card-premium">
+                <h4>Pending</h4>
+                <h2 th:text="${bookings != null ? #lists.size(bookings.?[status == 'PENDING']) : 0}">0</h2>
+                <p>Requests waiting for owner action</p>
+            </div>
+        </div>
+
+        <div class="content-card admin-glass-card">
+            <div class="action-bar">
+                <div>
+                    <h3 class="mb-1">Rent Booking Records</h3>
+                    <p class="text-muted mb-0">All rent booking activity is shown below.</p>
+                </div>
+            </div>
+
+            <div th:if="${bookings == null or #lists.isEmpty(bookings)}" class="empty-state premium-empty-state">
+                <h4>No rent bookings found</h4>
+                <p>There are currently no rent bookings available on the platform.</p>
+            </div>
+
+            <div th:if="${bookings != null and !#lists.isEmpty(bookings)}" class="table-responsive custom-table-wrap premium-table-wrap">
+                <table class="table custom-table booking-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Property ID</th>
+                        <th>Customer Email</th>
+                        <th>Owner Email</th>
+                        <th>Monthly Rent</th>
+                        <th>Total Months</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="booking : ${bookings}">
+                        <td><span class="table-id-pill" th:text="${booking.id}">1</span></td>
+                        <td th:text="${booking.propertyId}">101</td>
+                        <td th:text="${booking.customerEmail}">customer@mail.com</td>
+                        <td th:text="${booking.ownerEmail}">owner@mail.com</td>
+                        <td th:text="${booking.monthlyRent}">12000</td>
+                        <td th:text="${booking.totalMonths}">1</td>
+                        <td>
+                            <span class="status-badge success-badge" th:if="${booking.status == 'APPROVED'}">APPROVED</span>
+                            <span class="status-badge warning-badge" th:if="${booking.status == 'PENDING'}">PENDING</span>
+                            <span class="status-badge info-badge" th:if="${booking.status != 'APPROVED' and booking.status != 'PENDING'}"
+                                  th:text="${booking.status}">STATUS</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

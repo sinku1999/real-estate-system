@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Owner Profile | EstateFlow')}"></head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: owner-sidebar('profile')}"></div>
+
+    <main class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Update Owner Profile', 'Complete your verification details to manage listings professionally', 'Owner Panel')}"></div>
+
+        <section class="owner-profile-hero">
+            <div class="owner-profile-hero-left">
+
+                <!-- PROFILE IMAGE -->
+                <div style="
+                    width: 92px;
+                    height: 92px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+                    background: #eee;
+                ">
+                    <!-- IF IMAGE EXISTS -->
+                    <img th:if="${user.profileImageUrl != null}"
+                         th:src="@{${user.profileImageUrl}}"
+                         style="width:100%; height:100%; object-fit:cover;">
+
+                    <!-- FALLBACK -->
+                    <div th:if="${user.profileImageUrl == null}"
+                         style="
+                            width:100%;
+                            height:100%;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            font-size:2rem;
+                            font-weight:700;
+                            color:#fff;
+                            background: linear-gradient(135deg, #0f766e, #d4af37);
+                         ">
+                        OP
+                    </div>
+                </div>
+
+                <div>
+                    <div class="hero-badge">Profile Setup</div>
+                    <h2 class="mb-1">Make your profile trustworthy and complete</h2>
+                    <p class="owner-profile-subtitle mb-0">
+                        Add your professional details and government proof so your listings look more credible,
+                        feel more trustworthy, and stay ready for admin review.
+                    </p>
+                </div>
+            </div>
+
+            <div class="hero-side-actions">
+                <a th:href="@{/owner/profile}" class="btn-accent">View Profile</a>
+                <a th:href="@{/owner/dashboard}" class="btn-theme">Dashboard</a>
+            </div>
+        </section>
+
+        <div class="form-page-wrap admin-form-wrap">
+            <div class="form-card-custom admin-form-card profile-form-card">
+
+                <div class="form-card-header">
+                    <div>
+                        <h3 class="mb-2">Owner Verification Details</h3>
+                        <p class="text-muted mb-0">
+                            A strong profile creates a better first impression and helps with smoother listing approval later.
+                        </p>
+                    </div>
+
+                    <div class="form-mode-pill">Verification</div>
+                </div>
+
+                <div th:if="${errorMessage}" class="alert-custom-danger" th:text="${errorMessage}"></div>
+
+                <form th:action="@{/owner/profile/edit}"
+                      th:object="${ownerProfileDto}"
+                      method="post"
+                      enctype="multipart/form-data"
+                      class="premium-form-layout">
+
+                    <!-- NEW: PROFILE IMAGE -->
+                    <div class="mb-3">
+                        <label class="form-label">Profile Image</label>
+                        <input type="file"
+                               name="profileImage"
+                               class="form-control"
+                               accept="image/*">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Price</label>
+                        <input type="number" step="0.01" name="price" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Image URL</label>
+                        <input type="text" name="imageUrl" class="form-control" placeholder="Paste image link here" required>
+                    </div>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Age</label>
+                            <input type="number"
+                                   th:field="*{age}"
+                                   class="form-control premium-input"
+                                   placeholder="Enter your age">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Profession</label>
+                            <input type="text"
+                                   th:field="*{profession}"
+                                   class="form-control premium-input"
+                                   placeholder="Example: Property Consultant">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Address</label>
+                            <textarea th:field="*{address}"
+                                      class="form-control premium-input"
+                                      rows="4"
+                                      placeholder="Enter your full address"></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Government Proof</label>
+                            <input type="file"
+                                   th:field="*{govtProofFile}"
+                                   id="govtProofInput"
+                                   class="form-control premium-input"
+                                   accept="image/*,.pdf">
+
+                            <small class="text-muted d-block mt-2">
+                                Upload Aadhaar card, PAN card, or another valid identity proof.
+                            </small>
+
+                            <div class="doc-preview-box mt-3">
+                                <span class="info-label">Document Preview</span>
+                                <div id="proofFileName" class="text-muted small mt-2">
+                                    No file selected yet.
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="form-action-bar mt-4">
+                        <button type="submit" class="btn-theme">Save Profile</button>
+                        <a th:href="@{/owner/profile}" class="btn-light-soft">View Profile</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    const govtProofInput = document.getElementById('govtProofInput');
+    const proofFileName = document.getElementById('proofFileName');
+
+    if (govtProofInput && proofFileName) {
+        govtProofInput.addEventListener('change', function () {
+            if (this.files && this.files.length > 0) {
+                proofFileName.textContent = 'Selected file: ' + this.files[0].name;
+            } else {
+                proofFileName.textContent = 'No file selected yet.';
+            }
+        });
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

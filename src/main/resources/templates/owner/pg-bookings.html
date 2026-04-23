@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('PG Bookings | EstateFlow')}"></head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: owner-sidebar('pg-bookings')}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/topbar :: topbar('PG Bookings', 'Review and manage PG booking requests from customers', 'Owner Panel')}"></div>
+
+        <!-- HERO -->
+        <section class="admin-page-hero compact-hero">
+            <div class="admin-page-hero-content">
+                <div class="hero-badge">PG Booking Control</div>
+                <h2>Manage PG booking requests efficiently</h2>
+                <p>
+                    Review customer requests, approve bookings, and manage your PG occupancy
+                    from one premium dashboard.
+                </p>
+            </div>
+
+            <div class="hero-side-actions">
+                <a th:href="@{/owner/dashboard}" class="btn-theme">Dashboard</a>
+                <a th:href="@{/owner/properties}" class="btn-accent">My Properties</a>
+            </div>
+        </section>
+
+        <!-- STATS -->
+        <div class="dashboard-grid dashboard-grid-top">
+            <div class="stat-card stat-card-premium">
+                <h4>Total Requests</h4>
+                <h2 th:text="${bookings != null ? #lists.size(bookings) : 0}">0</h2>
+                <p>All PG booking requests</p>
+            </div>
+
+            <div class="stat-card stat-card-premium">
+                <h4>Pending</h4>
+                <h2 th:text="${bookings != null ? #lists.size(bookings.?[status == 'PENDING']) : 0}">0</h2>
+                <p>Waiting for your approval</p>
+            </div>
+
+            <div class="stat-card stat-card-premium">
+                <h4>Approved</h4>
+                <h2 th:text="${bookings != null ? #lists.size(bookings.?[status == 'APPROVED']) : 0}">0</h2>
+                <p>Confirmed bookings</p>
+            </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="content-card admin-glass-card">
+            <h3>PG Booking Requests</h3>
+            <p class="text-muted">All incoming PG booking requests are listed below.</p>
+
+            <!-- EMPTY -->
+            <div th:if="${bookings == null or #lists.isEmpty(bookings)}" class="empty-state premium-empty-state mt-3">
+                <h4>No PG bookings yet</h4>
+                <p>Once customers book your PG rooms, they will appear here.</p>
+            </div>
+
+            <!-- DATA -->
+            <div th:if="${bookings != null and !#lists.isEmpty(bookings)}"
+                 class="table-responsive custom-table-wrap premium-table-wrap mt-3">
+
+                <table class="table custom-table booking-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Room ID</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="b : ${bookings}">
+                        <td><span class="table-id-pill" th:text="${b.id}">1</span></td>
+                        <td th:text="${b.roomId}">101</td>
+                        <td th:text="${b.customerEmail}">mail</td>
+                        <td th:text="${b.monthlyAmount}">5000</td>
+
+                        <td>
+                            <span class="status-badge warning-badge" th:if="${b.status == 'PENDING'}">PENDING</span>
+                            <span class="status-badge success-badge" th:if="${b.status == 'APPROVED'}">APPROVED</span>
+                        </td>
+
+                        <td class="text-center">
+                            <div th:if="${b.status == 'PENDING'}">
+                                <form method="post" th:action="@{/owner/pg/approve}">
+                                    <input type="hidden" name="bookingId" th:value="${b.id}">
+                                    <button class="btn-approve btn-sm-action">Approve</button>
+                                </form>
+                            </div>
+
+                            <span th:if="${b.status != 'PENDING'}" class="text-muted small">No action</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>

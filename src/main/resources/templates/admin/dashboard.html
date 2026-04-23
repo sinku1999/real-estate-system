@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Admin Dashboard | EstateFlow')}"></head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: admin-sidebar('dashboard')}"></div>
+
+    <main class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Admin Dashboard', 'Control platform, bookings, approvals and growth from one premium workspace', 'Admin Panel')}"></div>
+
+        <section class="admin-hero">
+            <div class="admin-hero-content">
+                <div class="hero-badge">EstateFlow Admin Suite</div>
+                <h1>Run the entire platform from one beautiful control center</h1>
+                <p>
+                    Track users, monitor properties, manage approvals, and handle every booking flow
+                    with a cleaner and more premium admin experience.
+                </p>
+
+                <div class="hero-actions">
+                    <a th:href="@{/admin/properties}" class="btn-accent">Review Properties</a>
+                    <a th:href="@{/admin/locations/add}" class="btn-theme">Add Location</a>
+                </div>
+            </div>
+
+            <div class="hero-mini-stats">
+                <div class="mini-stat-card">
+                    <span>Total Users</span>
+                    <strong th:text="${totalUsers}">0</strong>
+                </div>
+                <div class="mini-stat-card">
+                    <span>Total Bookings</span>
+                    <strong th:text="${totalBookings}">0</strong>
+                </div>
+                <div class="mini-stat-card">
+                    <span>Total Locations</span>
+                    <strong th:text="${totalLocations}">0</strong>
+                </div>
+            </div>
+        </section>
+
+        <div class="dashboard-grid dashboard-grid-top">
+            <div class="stat-card stat-card-premium">
+                <h4>Total Properties</h4>
+                <h2 th:text="${totalProperties}">0</h2>
+                <p>All listed properties on the platform</p>
+            </div>
+
+            <div class="stat-card stat-card-premium">
+                <h4>Pending Properties</h4>
+                <h2 th:text="${pendingProperties}">0</h2>
+                <p>Awaiting review and approval</p>
+            </div>
+
+            <div class="stat-card stat-card-premium">
+                <h4>Approved Properties</h4>
+                <h2 th:text="${approvedProperties}">0</h2>
+                <p>Live and approved listings</p>
+            </div>
+
+            <div class="stat-card stat-card-premium">
+                <h4>Rejected Properties</h4>
+                <h2 th:text="${rejectedProperties}">0</h2>
+                <p>Rejected during review stage</p>
+            </div>
+        </div>
+
+        <div class="admin-section-grid">
+            <div class="content-card admin-glass-card">
+                <h3>Booking Management</h3>
+                <p class="text-muted">Manage each booking workflow from a single section.</p>
+
+                <div class="quick-actions">
+                    <a th:href="@{/admin/pg-bookings}" class="btn-theme">PG Bookings</a>
+                    <a th:href="@{/admin/rent-bookings}" class="btn-accent">Rent Bookings</a>
+                    <a th:href="@{/admin/sale-inquiries}" class="btn-dark">Sale Inquiries</a>
+                </div>
+            </div>
+
+            <div class="content-card admin-glass-card">
+                <h3>Quick Admin Actions</h3>
+                <p class="text-muted">Jump directly into the most important admin workflows.</p>
+
+                <div class="quick-actions">
+                    <a th:href="@{/admin/locations}" class="btn-theme">View Locations</a>
+                    <a th:href="@{/admin/locations/add}" class="btn-accent">Add Location</a>
+                    <a th:href="@{/admin/properties}" class="btn-dark">Manage Properties</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

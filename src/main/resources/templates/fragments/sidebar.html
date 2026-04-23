@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- ADMIN SIDEBAR -->
+<aside th:fragment="admin-sidebar(activePage)" class="sidebar">
+
+    <div class="brand">Estate<span>Flow</span></div>
+
+    <!-- PROFILE BLOCK -->
+    <div class="sidebar-profile-block text-center mb-3">
+
+        <div style="
+            width:64px;
+            height:64px;
+            border-radius:50%;
+            overflow:hidden;
+            margin:auto;
+            background:#eee;
+        ">
+            <img th:if="${loggedInUser != null and loggedInUser.profileImageUrl != null}"
+                 th:src="@{${loggedInUser.profileImageUrl}}"
+                 style="width:100%;height:100%;object-fit:cover;">
+
+            <div th:if="${loggedInUser == null or loggedInUser.profileImageUrl == null}"
+                 style="display:flex;align-items:center;justify-content:center;
+                        width:100%;height:100%;color:#fff;font-weight:700;
+                        background:linear-gradient(135deg,#0f766e,#d4af37);">
+                A
+            </div>
+        </div>
+
+        <div class="mt-2 fw-semibold" th:text="${loggedInUser != null ? loggedInUser.firstName : 'Admin'}"></div>
+        <small class="text-muted" th:text="${loggedInUserEmail}"></small>
+
+    </div>
+
+    <div class="nav-section-title">Main</div>
+    <a th:href="@{/admin/dashboard}" th:classappend="${activePage == 'dashboard'} ? ' active-link' : ''" class="nav-link-custom">Dashboard</a>
+    <a th:href="@{/admin/locations}" th:classappend="${activePage == 'locations'} ? ' active-link' : ''" class="nav-link-custom">Locations</a>
+    <a th:href="@{/admin/properties}" th:classappend="${activePage == 'properties'} ? ' active-link' : ''" class="nav-link-custom">Properties</a>
+
+    <div class="nav-section-title">Bookings</div>
+    <a th:href="@{/admin/pg-bookings}" th:classappend="${activePage == 'pg-bookings'} ? ' active-link' : ''" class="nav-link-custom">PG Bookings</a>
+    <a th:href="@{/admin/rent-bookings}" th:classappend="${activePage == 'rent-bookings'} ? ' active-link' : ''" class="nav-link-custom">Rent Bookings</a>
+    <a th:href="@{/admin/sale-inquiries}" th:classappend="${activePage == 'sale-inquiries'} ? ' active-link' : ''" class="nav-link-custom">Sale Inquiries</a>
+
+    <div class="nav-section-title">Account</div>
+    <a th:href="@{/logout}" class="nav-link-custom">Logout</a>
+</aside>
+
+<!-- OWNER SIDEBAR -->
+<aside th:fragment="owner-sidebar(activePage)" class="sidebar">
+
+    <div class="brand">Estate<span>Flow</span></div>
+
+    <!-- PROFILE BLOCK -->
+    <div class="sidebar-profile-block text-center mb-3">
+
+        <div style="
+            width:64px;
+            height:64px;
+            border-radius:50%;
+            overflow:hidden;
+            margin:auto;
+            background:#eee;
+        ">
+            <img th:if="${loggedInUser != null and loggedInUser.profileImageUrl != null}"
+                 th:src="@{${loggedInUser.profileImageUrl}}"
+                 style="width:100%;height:100%;object-fit:cover;">
+
+            <div th:if="${loggedInUser == null or loggedInUser.profileImageUrl == null}"
+                 style="display:flex;align-items:center;justify-content:center;
+                        width:100%;height:100%;color:#fff;font-weight:700;
+                        background:linear-gradient(135deg,#0f766e,#d4af37);">
+                <span th:text="${loggedInUser != null ? #strings.substring(loggedInUser.firstName,0,1) : 'O'}">O</span>
+            </div>
+        </div>
+
+        <div class="mt-2 fw-semibold"
+             th:text="${loggedInUser != null ? loggedInUser.firstName : 'Owner'}"></div>
+
+        <small class="text-muted" th:text="${loggedInUserEmail}"></small>
+
+    </div>
+
+    <div class="nav-section-title">Main</div>
+
+    <a th:href="@{/owner/dashboard}" th:classappend="${activePage == 'dashboard'} ? ' active-link' : ''" class="nav-link-custom">Dashboard</a>
+    <a th:href="@{/owner/explore}" th:classappend="${activePage == 'explore'} ? ' active-link' : ''" class="nav-link-custom">Explore Market</a>
+    <a th:href="@{/owner/pg-bookings}" th:classappend="${activePage == 'pg-bookings'} ? ' active-link' : ''" class="nav-link-custom">PG Bookings</a>
+    <a th:href="@{/owner/rent-bookings}" th:classappend="${activePage == 'rent-bookings'} ? ' active-link' : ''" class="nav-link-custom">Rent Bookings</a>
+    <a th:href="@{/owner/properties/add}" th:classappend="${activePage == 'add-property'} ? ' active-link' : ''" class="nav-link-custom">Add Property</a>
+    <a th:href="@{/owner/properties}" th:classappend="${activePage == 'my-properties'} ? ' active-link' : ''" class="nav-link-custom">My Properties</a>
+    <a th:href="@{/owner/inquiries}" th:classappend="${activePage == 'sale-inquiries'} ? ' active-link' : ''" class="nav-link-custom">Sale Inquiries</a>
+
+    <div class="nav-section-title">Profile</div>
+
+    <a th:href="@{/owner/profile}" th:classappend="${activePage == 'profile'} ? ' active-link' : ''" class="nav-link-custom">My Profile</a>
+    <a th:href="@{/logout}" class="nav-link-custom">Logout</a>
+</aside>
+
+<!-- CUSTOMER SIDEBAR -->
+<aside th:fragment="customer-sidebar(activePage)" class="sidebar">
+
+    <div class="brand">Estate<span>Flow</span></div>
+
+    <!-- PROFILE BLOCK -->
+    <div class="sidebar-profile-block text-center mb-3">
+
+        <div style="
+            width:64px;
+            height:64px;
+            border-radius:50%;
+            overflow:hidden;
+            margin:auto;
+            background:#eee;
+        ">
+            <img th:if="${loggedInUser != null and loggedInUser.profileImageUrl != null}"
+                 th:src="@{${loggedInUser.profileImageUrl}}"
+                 style="width:100%;height:100%;object-fit:cover;">
+
+            <div th:if="${loggedInUser == null or loggedInUser.profileImageUrl == null}"
+                 style="display:flex;align-items:center;justify-content:center;
+                        width:100%;height:100%;color:#fff;font-weight:700;
+                        background:linear-gradient(135deg,#0f766e,#d4af37);">
+                <span th:text="${loggedInUser != null ? #strings.substring(loggedInUser.firstName,0,1) : 'C'}">C</span>
+            </div>
+        </div>
+
+        <div class="mt-2 fw-semibold"
+             th:text="${loggedInUser != null ? loggedInUser.firstName : 'Customer'}"></div>
+
+        <small class="text-muted" th:text="${loggedInUserEmail}"></small>
+
+    </div>
+
+    <div class="nav-section-title">Main</div>
+    <a th:href="@{/customer/dashboard}" th:classappend="${activePage == 'dashboard'} ? ' active-link' : ''" class="nav-link-custom">Dashboard</a>
+    <a th:href="@{/explore}" th:classappend="${activePage == 'explore'} ? ' active-link' : ''" class="nav-link-custom">Explore Properties</a>
+    <a th:href="@{/customer/wallet}" th:classappend="${activePage == 'wallet'} ? ' active-link' : ''" class="nav-link-custom">Wallet</a>
+
+    <div class="nav-section-title">My Activity</div>
+    <a th:href="@{/customer/inquiries}" th:classappend="${activePage == 'sale-inquiries'} ? ' active-link' : ''" class="nav-link-custom">Sale Inquiries</a>
+    <a th:href="@{/customer/rent-bookings}" th:classappend="${activePage == 'rent-bookings'} ? ' active-link' : ''" class="nav-link-custom">Rent Bookings</a>
+    <a th:href="@{/customer/pg-bookings}" th:classappend="${activePage == 'pg-bookings'} ? ' active-link' : ''" class="nav-link-custom">PG Bookings</a>
+
+    <div class="nav-section-title">Account</div>
+    <a th:href="@{/customer/profile}" th:classappend="${activePage == 'profile'} ? ' active-link' : ''" class="nav-link-custom">My Profile</a>
+    <a th:href="@{/logout}" class="nav-link-custom">Logout</a>
+</aside>
+
+</body>
+</html>

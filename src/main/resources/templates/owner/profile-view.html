@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('My Profile | EstateFlow')}"></head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: owner-sidebar('profile')}"></div>
+
+    <main class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('My Profile', 'View and manage your professional owner identity', 'Owner Panel')}"></div>
+
+        <div th:if="${param.success != null and param.success[0] == 'saved'}"
+             class="alert-custom-success">
+            Profile saved successfully.
+        </div>
+
+        <div th:if="${profile == null}" class="content-card premium-empty-state text-center" style="border-radius: 28px;">
+            <h4>Your profile is not completed yet</h4>
+            <p class="text-muted">
+                Add your personal and verification details to build trust with customers and improve your owner credibility.
+            </p>
+            <a th:href="@{/owner/profile/edit}" class="btn-accent">Complete Profile</a>
+        </div>
+
+        <div th:if="${profile != null}">
+
+            <section class="owner-profile-hero">
+                <div class="owner-profile-hero-left">
+
+                    <!-- PROFILE IMAGE -->
+                    <div style="
+                        width: 96px;
+                        height: 96px;
+                        border-radius: 50%;
+                        overflow: hidden;
+                        box-shadow: 0 14px 30px rgba(15, 118, 110, 0.18);
+                        background: #eee;
+                        flex-shrink: 0;
+                    ">
+                        <!-- IF IMAGE EXISTS -->
+                        <img th:if="${user != null and user.profileImageUrl != null}"
+                             th:src="@{${user.profileImageUrl}}"
+                             alt="Profile Image"
+                             style="width:100%; height:100%; object-fit:cover;">
+
+                        <!-- FALLBACK INITIALS -->
+                        <div th:if="${user == null or user.profileImageUrl == null}"
+                             style="
+                                width:100%;
+                                height:100%;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                color:white;
+                                font-size:30px;
+                                font-weight:800;
+                                letter-spacing:1px;
+                                background: linear-gradient(135deg, #0f766e, #d4af37);
+                             ">
+                            <span th:text="${
+                                (profile.profession != null and !#strings.isEmpty(profile.profession))
+                                ? #strings.substring(profile.profession,0,1).toUpperCase()
+                                : 'O'
+                            } + ${
+                                (profile.address != null and !#strings.isEmpty(profile.address))
+                                ? #strings.substring(profile.address,0,1).toUpperCase()
+                                : 'P'
+                            }">OP</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="hero-badge">Owner Profile</div>
+                        <h2 class="mb-1">Professional Owner Identity</h2>
+                        <p class="owner-profile-subtitle mb-2">
+                            Keep your details complete and verified to improve trust and approval confidence.
+                        </p>
+
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="status-badge success-badge" th:if="${profile.verifiedProfile}">
+                                Verified
+                            </span>
+
+                            <span class="status-badge warning-badge" th:unless="${profile.verifiedProfile}">
+                                Pending Review
+                            </span>
+
+                            <span class="status-badge info-badge">
+                                Owner Panel
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-side-actions">
+                    <a th:href="@{/owner/profile/edit}" class="btn-accent">Edit Profile</a>
+                    <a th:href="@{/owner/dashboard}" class="btn-theme">Dashboard</a>
+                </div>
+            </section>
+
+            <div class="dashboard-grid dashboard-grid-top">
+                <div class="stat-card stat-card-premium owner-stat-card">
+                    <h4>Verification Status</h4>
+                    <h2 th:text="${profile.verifiedProfile ? 'Yes' : 'No'}">No</h2>
+                    <p>Shows whether your profile is verified</p>
+                </div>
+
+                <div class="stat-card stat-card-premium owner-stat-card">
+                    <h4>Government Proof</h4>
+                    <h2 th:text="${profile.govtProofPath != null ? 'Uploaded' : 'Missing'}">Uploaded</h2>
+                    <p>Proof document availability</p>
+                </div>
+
+                <div class="stat-card stat-card-premium owner-stat-card">
+                    <h4>Profession</h4>
+                    <h2 th:text="${profile.profession != null ? profile.profession : 'N/A'}">N/A</h2>
+                    <p>Your professional identity on the platform</p>
+                </div>
+            </div>
+
+            <div class="row g-4 mt-1">
+
+                <div class="col-lg-8">
+                    <div class="content-card admin-glass-card" style="border-radius: 28px;">
+                        <div class="section-heading-row mb-3">
+                            <div>
+                                <h3 class="mb-1">Profile Details</h3>
+                                <p class="text-muted mb-0">Your key professional and verification details.</p>
+                            </div>
+                        </div>
+
+                        <div class="profile-info-grid">
+                            <div class="profile-info-box">
+                                <span class="info-label">Age</span>
+                                <strong th:text="${profile.age != null ? profile.age : 'Not added'}">28</strong>
+                            </div>
+
+                            <div class="profile-info-box">
+                                <span class="info-label">Profession</span>
+                                <strong th:text="${profile.profession != null ? profile.profession : 'Not added'}">Consultant</strong>
+                            </div>
+
+                            <div class="profile-info-box full-width">
+                                <span class="info-label">Address</span>
+                                <strong th:text="${profile.address != null ? profile.address : 'Not added'}">Address</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="content-card admin-glass-card" style="border-radius: 28px;">
+                        <h3 class="mb-3">Verification</h3>
+
+                        <div th:if="${profile.govtProofPath != null}">
+                            <div class="doc-preview-box mb-3">
+                                <span class="info-label mb-2">Uploaded Document</span>
+
+                                <img th:if="${#strings.endsWith(profile.govtProofPath, '.png') or #strings.endsWith(profile.govtProofPath, '.jpg') or #strings.endsWith(profile.govtProofPath, '.jpeg')}"
+                                     th:src="@{${profile.govtProofPath}}"
+                                     class="govt-proof-preview">
+
+                                <div th:unless="${#strings.endsWith(profile.govtProofPath, '.png') or #strings.endsWith(profile.govtProofPath, '.jpg') or #strings.endsWith(profile.govtProofPath, '.jpeg')}"
+                                     class="text-muted">
+                                    Document uploaded successfully.
+                                </div>
+                            </div>
+
+                            <a th:href="@{${profile.govtProofPath}}"
+                               target="_blank"
+                               class="btn-theme w-100">
+                                View Document
+                            </a>
+                        </div>
+
+                        <div th:if="${profile.govtProofPath == null}" class="text-muted">
+                            No government proof uploaded.
+                        </div>
+                    </div>
+
+                    <div class="content-card admin-glass-card mt-4" style="border-radius: 28px;">
+                        <h3 class="mb-3">Quick Actions</h3>
+
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/owner/properties/add}" class="btn-theme">Add Property</a>
+                            <a th:href="@{/owner/properties}" class="btn-accent">My Properties</a>
+                            <a th:href="@{/owner/inquiries}" class="btn-theme">View Inquiries</a>
+                            <a th:href="@{/owner/profile/edit}" class="btn-dark">Edit Profile</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>

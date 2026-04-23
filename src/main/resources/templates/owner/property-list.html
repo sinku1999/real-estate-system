@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('My Properties | EstateFlow')}"></head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: owner-sidebar('my-properties')}"></div>
+
+    <main class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('My Properties', 'Review, manage, and improve your active property inventory', 'Owner Panel')}"></div>
+
+        <section class="admin-page-hero compact-hero">
+            <div class="admin-page-hero-content">
+                <div class="hero-badge">Property Inventory</div>
+                <h2>Manage all your listings from one premium workspace</h2>
+                <p>
+                    Review your property portfolio, keep listing information updated,
+                    and improve visibility by maintaining high-quality inventory.
+                </p>
+            </div>
+
+            <div class="hero-side-actions">
+                <a th:href="@{/owner/properties/add}" class="btn-accent">Add Property</a>
+                <a th:href="@{/owner/dashboard}" class="btn-theme">Dashboard</a>
+            </div>
+        </section>
+
+        <div class="dashboard-grid dashboard-grid-top">
+            <div class="stat-card stat-card-premium owner-stat-card">
+                <h4>Total Listings</h4>
+                <h2 th:text="${properties != null ? #lists.size(properties) : 0}">0</h2>
+                <p>All properties currently added by you</p>
+            </div>
+
+            <div class="stat-card stat-card-premium owner-stat-card">
+                <h4>With Images</h4>
+                <h2 th:text="${properties != null ? #lists.size(properties.?[imagePath != null and !imagePath.isEmpty()]) : 0}">0</h2>
+                <p>Listings with visual presentation ready</p>
+            </div>
+
+            <div class="stat-card stat-card-premium owner-stat-card">
+                <h4>Need Attention</h4>
+                <h2 th:text="${properties != null ? #lists.size(properties.?[imagePath == null or imagePath.isEmpty()]) : 0}">0</h2>
+                <p>Properties that may need image updates</p>
+            </div>
+
+            <div class="stat-card stat-card-premium owner-stat-card">
+                <h4>Total Portfolio Value</h4>
+                <h2 th:text="${properties != null ? '₹' + #aggregates.sum(properties.![price]) : '₹0'}">₹0</h2>
+                <p>Combined value of your listed properties</p>
+            </div>
+        </div>
+
+        <div th:if="${properties != null and !#lists.isEmpty(properties)}" class="content-card admin-glass-card mb-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h3 class="mb-1">Search & Filter</h3>
+                    <p class="text-muted mb-0">Find a property quickly by name, location, description, or ID.</p>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap align-items-center">
+                    <input type="text"
+                           id="propertySearch"
+                           class="form-control premium-input"
+                           placeholder="Search properties..."
+                           style="min-width: 260px; max-width: 320px;">
+
+                    <button type="button" class="btn-light-soft property-filter-btn active-property-filter" data-filter="all">All</button>
+                    <button type="button" class="btn-light-soft property-filter-btn" data-filter="with-image">With Image</button>
+                    <button type="button" class="btn-light-soft property-filter-btn" data-filter="no-image">No Image</button>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${properties != null and !#lists.isEmpty(properties)}"
+             class="property-grid mt-3"
+             id="propertyGrid">
+
+            <div class="property-card-premium enhanced-property-card owner-property-card"
+                 th:each="property : ${properties}"
+                 th:attr="data-name=${property.name},
+                          data-location=${property.location != null ? property.location.name : ''},
+                          data-description=${property.description},
+                          data-id=${property.id},
+                          data-has-image=${property.imagePath != null and !property.imagePath.isEmpty() ? 'yes' : 'no'}">
+
+                <div class="property-image-wrap">
+                    <img th:if="${property.imagePath != null and !property.imagePath.isEmpty()}"
+                         th:src="${property.imagePath}"
+                         alt="Property Image">
+
+                    <div th:if="${property.imagePath == null or property.imagePath.isEmpty()}"
+                         class="property-image-placeholder d-flex align-items-center justify-content-center">
+                        <span>No Image</span>
+                    </div>
+
+                    <div class="property-badges">
+                        <span class="status-badge info-badge">My Listing</span>
+                    </div>
+                </div>
+
+                <div class="property-card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                        <h4 class="property-title" th:text="${property.name}">Property Name</h4>
+                    </div>
+
+                    <p class="property-meta"
+                       th:text="${property.location != null ? property.location.name : 'Location not added'}">
+                        Location
+                    </p>
+
+                    <p class="property-desc"
+                       th:text="${property.description != null and !property.description.isEmpty() ? property.description : 'No description added yet.'}">
+                        Description
+                    </p>
+
+                    <div class="property-detail-row">
+                        <span>Price</span>
+                        <strong>
+                            ₹<span th:text="${property.price != null ? #numbers.formatDecimal(property.price, 0, 'COMMA', 0, 'POINT') : '0'}">0</span>
+                        </strong>
+                    </div>
+
+                    <div class="property-detail-row" th:if="${property.id != null}">
+                        <span>Property ID</span>
+                        <strong th:text="${property.id}">1</strong>
+                    </div>
+
+                    <div class="property-detail-row">
+                        <span>Image Status</span>
+                        <strong th:text="${property.imagePath != null and !property.imagePath.isEmpty() ? 'Uploaded' : 'Missing'}">Uploaded</strong>
+                    </div>
+
+                    <div class="property-action-bar">
+                        <a th:href="@{'/owner/properties/edit/' + ${property.id}}" class="btn-theme">Edit</a>
+
+                        <a href="javascript:void(0);"
+                           class="btn-delete-premium"
+                           th:attr="data-delete-url=@{'/owner/properties/delete/' + ${property.id}}"
+                           onclick="confirmDelete(this)">
+                            Delete
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${properties != null and !#lists.isEmpty(properties)}"
+             id="noSearchResults"
+             class="content-card premium-empty-state mt-4 text-center"
+             style="border-radius: 24px; display: none;">
+            <h4>No matching properties found</h4>
+            <p class="text-muted">Try a different search keyword or filter.</p>
+        </div>
+
+        <div th:if="${properties == null or #lists.isEmpty(properties)}"
+             class="content-card premium-empty-state mt-4 text-center"
+             style="border-radius: 24px;">
+            <h4>No properties added yet</h4>
+            <p class="text-muted">Start building your inventory by adding your first property listing.</p>
+            <a th:href="@{/owner/properties/add}" class="btn-accent">Add Property</a>
+        </div>
+    </main>
+</div>
+
+<script>
+    function confirmDelete(element) {
+        const url = element.getAttribute("data-delete-url");
+        if (confirm("⚠️ Are you sure you want to delete this property?")) {
+            window.location.href = url;
+        }
+    }
+
+    const searchInput = document.getElementById('propertySearch');
+    const filterButtons = document.querySelectorAll('.property-filter-btn');
+    const propertyCards = document.querySelectorAll('.owner-property-card');
+    const noResultsBox = document.getElementById('noSearchResults');
+
+    let activeFilter = 'all';
+
+    function applyPropertyFilters() {
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        let visibleCount = 0;
+
+        propertyCards.forEach(card => {
+            const name = (card.dataset.name || '').toLowerCase();
+            const location = (card.dataset.location || '').toLowerCase();
+            const description = (card.dataset.description || '').toLowerCase();
+            const id = (card.dataset.id || '').toLowerCase();
+            const hasImage = card.dataset.hasImage || 'no';
+
+            const matchesSearch =
+                name.includes(query) ||
+                location.includes(query) ||
+                description.includes(query) ||
+                id.includes(query);
+
+            let matchesFilter = true;
+            if (activeFilter === 'with-image') {
+                matchesFilter = hasImage === 'yes';
+            } else if (activeFilter === 'no-image') {
+                matchesFilter = hasImage === 'no';
+            }
+
+            if (matchesSearch && matchesFilter) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        if (noResultsBox) {
+            noResultsBox.style.display = visibleCount === 0 ? '' : 'none';
+        }
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('keyup', applyPropertyFilters);
+    }
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            filterButtons.forEach(btn => btn.classList.remove('active-property-filter'));
+            this.classList.add('active-property-filter');
+            activeFilter = this.dataset.filter;
+            applyPropertyFilters();
+        });
+    });
+</script>
+
+</body>
+</html>

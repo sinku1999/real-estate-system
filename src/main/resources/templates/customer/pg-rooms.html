@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('PG Rooms | EstateFlow')}"></head>
+
+<body>
+
+<div class="app-layout">
+
+    <div th:replace="~{fragments/sidebar :: customer-sidebar('explore')}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/topbar :: topbar('PG Rooms', 'Select a room and proceed with booking', 'Customer Panel')}"></div>
+
+        <section class="admin-page-hero compact-hero">
+            <div class="admin-page-hero-content">
+                <div class="hero-badge">PG Rooms</div>
+                <h2 th:text="${property.name}">PG Property</h2>
+            </div>
+
+            <div class="hero-side-actions">
+                <a th:href="@{/explore}" class="btn-theme">Back to Explore</a>
+            </div>
+        </section>
+
+        <div class="row g-4">
+
+            <!-- LOOP ROOMS -->
+            <div class="col-lg-4" th:each="room : ${rooms}">
+                <div class="content-card admin-glass-card">
+
+                    <h4 th:text="'Room #' + ${room.id}">Room</h4>
+
+                    <div class="property-info-stack mt-3">
+
+                        <div class="property-detail-row">
+                            <span>Type</span>
+                            <strong th:text="${room.type}">Single</strong>
+                        </div>
+
+                        <div class="property-detail-row">
+                            <span>Price</span>
+                            <strong>₹ <span th:text="${room.price}">5000</span></strong>
+                        </div>
+
+                        <div class="property-detail-row">
+                            <span>Status</span>
+                            <strong th:text="${room.available ? 'Available' : 'Occupied'}"></strong>
+                        </div>
+
+                    </div>
+
+                    <!-- BOOK BUTTON -->
+                    <form th:if="${room.available}"
+                          th:action="@{/pg/book}"
+                          method="post"
+                          class="mt-3">
+
+                        <input type="hidden" name="roomId" th:value="${room.id}"/>
+
+                        <button type="submit" class="btn-success w-100">
+                            Book Now
+                        </button>
+                    </form>
+
+                    <div th:if="${!room.available}" class="mt-3 text-danger text-center">
+                        Already Booked
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>

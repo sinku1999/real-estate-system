@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Owner Dashboard | EstateFlow')}"></head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: owner-sidebar('dashboard')}"></div>
+
+    <main class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Owner Dashboard', 'Manage listings, bookings, profile and growth from one premium workspace', 'Owner Panel')}"></div>
+
+        <section class="owner-hero">
+            <div class="owner-hero-content">
+                <div class="hero-badge">Owner Workspace</div>
+                <h1>Grow your real estate business with a cleaner owner command center</h1>
+                <p>
+                    Track listing performance, stay on top of approvals, manage bookings,
+                    and keep your profile business-ready from a modern premium dashboard.
+                </p>
+
+                <div class="hero-actions">
+                    <a th:href="@{/owner/properties/add}" class="btn-accent">Add Property</a>
+                    <a th:href="@{/owner/properties}" class="btn-theme">Manage Properties</a>
+                    <a th:href="@{/owner/profile/edit}" class="btn-dark">Update Profile</a>
+                </div>
+            </div>
+
+            <div class="owner-hero-side">
+                <div class="owner-mini-card">
+                    <span>My Properties</span>
+                    <strong th:text="${myProperties != null ? myProperties : 0}">0</strong>
+                </div>
+                <div class="owner-mini-card">
+                    <span>Approved Listings</span>
+                    <strong th:text="${approvedProperties != null ? approvedProperties : 0}">0</strong>
+                </div>
+                <div class="owner-mini-card">
+                    <span>Pending Review</span>
+                    <strong th:text="${pendingProperties != null ? pendingProperties : 0}">0</strong>
+                </div>
+            </div>
+        </section>
+
+        <!-- UPDATED STATS -->
+        <div class="dashboard-grid dashboard-grid-top">
+            <div class="stat-card stat-card-premium owner-stat-card">
+                <h4>My Properties</h4>
+                <h2 th:text="${myProperties != null ? myProperties : 0}">0</h2>
+                <p>Total properties added by you</p>
+            </div>
+
+            <div class="stat-card stat-card-premium owner-stat-card">
+                <h4>Pending Approval</h4>
+                <h2 th:text="${pendingProperties != null ? pendingProperties : 0}">0</h2>
+                <p>Listings waiting for admin review</p>
+            </div>
+
+            <div class="stat-card stat-card-premium owner-stat-card">
+                <h4>Approved Listings</h4>
+                <h2 th:text="${approvedProperties != null ? approvedProperties : 0}">0</h2>
+                <p>Live listings visible on platform</p>
+            </div>
+
+            <div class="stat-card stat-card-premium owner-stat-card">
+                <h4>Total Earnings</h4>
+                <h2>₹25,000</h2>
+                <p>From bookings & deals</p>
+            </div>
+        </div>
+
+        <!-- NEW ANALYTICS SECTION -->
+        <div class="content-card admin-glass-card mt-4">
+            <h3>Performance Overview</h3>
+            <p class="text-muted">Track your bookings and inquiry trends</p>
+
+            <canvas id="ownerChart" height="120"></canvas>
+        </div>
+
+        <div class="content-card admin-glass-card mt-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h3 class="mb-1">Quick Actions</h3>
+                    <p class="text-muted mb-0">
+                        Open your most-used owner workflows in one click.
+                    </p>
+                </div>
+
+                <div class="quick-actions">
+                    <a th:href="@{/owner/properties/add}" class="btn-theme">Add Property</a>
+                    <a th:href="@{/owner/properties}" class="btn-accent">My Properties</a>
+                    <a th:href="@{/owner/inquiries}" class="btn-dark">View Inquiries</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-1">
+            <div class="col-lg-8">
+                <div class="content-card owner-business-card">
+                    <div class="section-heading-row">
+                        <div>
+                            <h3 class="mb-2">Owner Activity Overview</h3>
+                            <p class="text-muted mb-0">
+                                Stay organized across profile, inventory, customer interest, and business growth.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <div class="owner-feature-panel owner-feature-teal">
+                                <h5>Profile Readiness</h5>
+                                <p>Keep your owner profile complete and trustworthy for faster approvals.</p>
+                                <a th:href="@{/owner/profile}" class="btn-theme">Open Profile</a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="owner-feature-panel owner-feature-gold">
+                                <h5>Inventory Control</h5>
+                                <p>Update property listings and keep your inventory polished and current.</p>
+                                <a th:href="@{/owner/properties}" class="btn-accent">Manage Properties</a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="owner-feature-panel owner-feature-indigo">
+                                <h5>Customer Interest</h5>
+                                <p>Review incoming sale inquiries and continue negotiations smoothly.</p>
+                                <a th:href="@{/owner/inquiries}" class="btn-theme">Check Inquiries</a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="owner-feature-panel owner-feature-green">
+                                <h5>Growth Ready</h5>
+                                <p>Use market visibility and approvals to improve conversions and reach.</p>
+                                <a th:href="@{/owner/explore}" class="btn-theme">Explore Market</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="content-card owner-side-card mb-4">
+                    <h3 class="mb-3">Media Upload</h3>
+                    <p class="text-muted">Upload property images quickly from your dashboard.</p>
+
+                    <form method="post" th:action="@{/owner/upload}" enctype="multipart/form-data">
+                        <input type="file" name="file" class="form-control premium-input mb-3">
+                        <button type="submit" class="btn-accent w-100">Upload Image</button>
+                    </form>
+                </div>
+
+                <div class="content-card owner-side-card">
+                    <h3 class="mb-3">Navigation</h3>
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/owner/profile}" class="btn-theme">My Profile</a>
+                        <a th:href="@{/owner/pg-bookings}" class="btn-theme">PG Bookings</a>
+                        <a th:href="@{/owner/rent-bookings}" class="btn-theme">Rent Bookings</a>
+                        <a th:href="@{/owner/properties/add}" class="btn-accent">Add New Property</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- CHART SCRIPT -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('ownerChart');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            datasets: [
+                {
+                    label: 'Bookings',
+                    data: [2, 5, 3, 7],
+                    tension: 0.4
+                },
+                {
+                    label: 'Inquiries',
+                    data: [4, 3, 6, 5],
+                    tension: 0.4
+                }
+            ]
+        }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

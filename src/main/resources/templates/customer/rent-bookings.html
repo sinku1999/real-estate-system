@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Rent Bookings | EstateFlow')}"></head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: customer-sidebar('rent-bookings')}"></div>
+
+    <main class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Rent Bookings', 'Track your rental booking journey in one place', 'Customer Panel')}"></div>
+
+        <div class="premium-banner">
+            <div>
+                <div class="hero-badge">Rent Activity</div>
+                <h2>Manage your rent bookings smoothly</h2>
+                <p>View upcoming rentals, payment readiness, and booking progress through a clean premium dashboard.</p>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <h4>Total Rent Bookings</h4>
+                <h2>0</h2>
+            </div>
+
+            <div class="stat-card">
+                <h4>Active Rentals</h4>
+                <h2>0</h2>
+            </div>
+
+            <div class="stat-card">
+                <h4>Completed Rentals</h4>
+                <h2>0</h2>
+            </div>
+
+            <div class="stat-card">
+                <h4>Pending Actions</h4>
+                <h2>0</h2>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h3>Rent Booking Records</h3>
+            <p class="text-muted">Your rent booking history will appear here once you begin booking rental properties.</p>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Owner</th>
+                        <th>Status</th>
+                        <th>Monthly Rent</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No rent bookings available yet.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h3>Quick Actions</h3>
+            <div class="quick-actions">
+                <a th:href="@{/explore}" class="btn-theme">Explore Properties</a>
+                <a th:href="@{/customer/dashboard}" class="btn-accent">Back to Dashboard</a>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

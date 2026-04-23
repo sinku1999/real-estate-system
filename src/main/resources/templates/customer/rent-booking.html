@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Book Rental Property | EstateFlow')}"></head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: customer-sidebar('rent-bookings')}"></div>
+
+    <main class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Book Rental Property', 'Review the property and confirm your rental booking', 'Customer Panel')}"></div>
+
+        <div class="premium-banner">
+            <div>
+                <div class="hero-badge">Rental Confirmation</div>
+                <h2 th:text="${property != null ? property.name : 'Rental Property'}">Rental Property</h2>
+                <p>Carefully review the details below and confirm your booking when you are ready.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-7">
+                <div class="content-card admin-glass-card property-detail-hero-card">
+                    <div class="property-detail-image-wrap">
+                        <img th:if="${property != null and property.imagePath != null and !property.imagePath.isEmpty()}"
+                             th:src="${property.imagePath}"
+                             class="property-detail-main-image"
+                             alt="Property Image">
+
+                        <div th:if="${property == null or property.imagePath == null or property.imagePath.isEmpty()}"
+                             class="property-image-placeholder property-detail-placeholder">
+                            No Image Available
+                        </div>
+
+                        <div class="property-badges">
+                            <span class="status-badge success-badge">Rent</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="content-card admin-glass-card property-detail-side-card">
+
+                    <div class="property-detail-price-box">
+                        <span class="info-label">Monthly Rent</span>
+                        <h2>
+                            ₹<span th:text="${property != null && property.rent != null ? #numbers.formatDecimal(property.rent, 0, 'COMMA', 0, 'POINT') : (property != null && property.price != null ? #numbers.formatDecimal(property.price, 0, 'COMMA', 0, 'POINT') : '0')}"></span>
+                        </h2>
+                    </div>
+
+                    <div class="property-info-stack mt-4">
+                        <div class="property-detail-row">
+                            <span>Location</span>
+                            <strong th:text="${property != null && property.location != null ? property.location.name : 'Location not available'}"></strong>
+                        </div>
+
+                        <div class="property-detail-row">
+                            <span>Property Type</span>
+                            <strong th:text="${property != null ? property.propertyType : 'N/A'}"></strong>
+                        </div>
+
+                        <div class="property-detail-row">
+                            <span>Listing Type</span>
+                            <strong th:text="${property != null ? property.listingType : 'N/A'}"></strong>
+                        </div>
+
+                        <div class="property-detail-row">
+                            <span>BHK</span>
+                            <strong th:text="${property != null && property.bhk != null ? property.bhk : 'N/A'}"></strong>
+                        </div>
+
+                        <div class="property-detail-row">
+                            <span>Size</span>
+                            <strong th:text="${property != null && property.sizeSqFt != null ? property.sizeSqFt + ' Sq Ft' : 'N/A'}"></strong>
+                        </div>
+
+                        <div class="property-detail-row">
+                            <span>Address</span>
+                            <strong th:text="${property != null && property.address != null ? property.address : 'Address not available'}"></strong>
+                        </div>
+                    </div>
+
+                    <div class="property-description-box mt-4">
+                        <span class="info-label">Description</span>
+                        <p th:text="${property != null && property.description != null && !#strings.isEmpty(property.description) ? property.description : 'No description available'}"></p>
+                    </div>
+
+                    <div class="content-card mt-4" style="padding: 18px;">
+                        <h3 style="margin-bottom: 10px;">Confirm Booking</h3>
+                        <p class="text-muted mb-3">
+                            By confirming this booking, your rental request will be sent and will appear in your rent booking flow.
+                        </p>
+
+                        <form th:action="@{/rent/book}" method="post" class="d-grid gap-2">
+                            <input type="hidden" name="propertyId" th:value="${property.id}"/>
+
+                            <button type="submit" class="btn-theme">
+                                Confirm Booking
+                            </button>
+
+                            <a th:href="@{/explore}" class="btn-light-soft text-center">
+                                Cancel
+                            </a>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

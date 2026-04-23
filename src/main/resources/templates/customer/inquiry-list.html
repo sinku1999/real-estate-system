@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Sale Inquiries | EstateFlow')}"></head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: customer-sidebar('sale-inquiries')}"></div>
+
+    <main class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('Sale Inquiries', 'Track your negotiations and property inquiry progress', 'Customer Panel')}"></div>
+
+        <section class="customer-hero">
+            <div class="customer-hero-content">
+                <div class="hero-badge">Inquiry Workspace</div>
+                <h1>Manage your property negotiations in one premium place</h1>
+                <p>
+                    Stay updated on your offers, track deal movement, and continue
+                    conversations with owners through a cleaner inquiry experience.
+                </p>
+
+                <div class="hero-actions">
+                    <a th:href="@{/explore}" class="btn-accent">Explore Properties</a>
+                    <a th:href="@{/customer/dashboard}" class="btn-theme">Dashboard</a>
+                    <a th:href="@{/customer/wallet}" class="btn-dark">Wallet</a>
+                </div>
+            </div>
+
+            <div class="customer-hero-side">
+                <div class="customer-mini-card">
+                    <span>Total Inquiries</span>
+                    <strong th:text="${#lists.size(inquiries)}">0</strong>
+                </div>
+                <div class="customer-mini-card">
+                    <span>Active Deals</span>
+                    <strong th:text="${#lists.size(inquiries.?[status == 'ACTIVE'])}">0</strong>
+                </div>
+                <div class="customer-mini-card">
+                    <span>Accepted Deals</span>
+                    <strong th:text="${#lists.size(inquiries.?[status == 'ACCEPTED'])}">0</strong>
+                </div>
+            </div>
+        </section>
+
+        <div class="dashboard-grid dashboard-grid-top">
+            <div class="stat-card stat-card-premium customer-stat-card">
+                <h4>Total Inquiries</h4>
+                <h2 th:text="${#lists.size(inquiries)}">0</h2>
+                <p>All offers submitted by you</p>
+            </div>
+
+            <div class="stat-card stat-card-premium customer-stat-card">
+                <h4>Open Deals</h4>
+                <h2 th:text="${#lists.size(inquiries.?[status == 'ACTIVE'])}">0</h2>
+                <p>Deals still under negotiation</p>
+            </div>
+
+            <div class="stat-card stat-card-premium customer-stat-card">
+                <h4>Closed Deals</h4>
+                <h2 th:text="${#lists.size(inquiries.?[status == 'BOOKED'])}">0</h2>
+                <p>Deals completed successfully</p>
+            </div>
+
+            <div class="stat-card stat-card-premium customer-stat-card">
+                <h4>Accepted Offers</h4>
+                <h2 th:text="${#lists.size(inquiries.?[status == 'ACCEPTED'])}">0</h2>
+                <p>Offers accepted by owners</p>
+            </div>
+        </div>
+
+        <div class="content-card admin-glass-card">
+            <div class="action-bar">
+                <div>
+                    <h3 class="mb-1">Your Inquiries</h3>
+                    <p class="text-muted mb-0">Review each inquiry and continue your negotiations with owners.</p>
+                </div>
+            </div>
+
+            <div class="table-responsive custom-table-wrap premium-table-wrap">
+                <table class="table custom-table booking-table">
+                    <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Offer Amount</th>
+                        <th>Status</th>
+                        <th>Owner Email</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(inquiries)}">
+                        <td colspan="5" class="text-center text-muted py-4">No sale inquiries available yet.</td>
+                    </tr>
+
+                    <tr th:each="inquiry : ${inquiries}">
+                        <td>
+                            <div class="fw-semibold"
+                                 th:text="${inquiry.property != null ? 'Property #' + inquiry.property.id : 'Property not available'}">
+                                Property
+                            </div>
+                        </td>
+
+                        <td>
+                            <strong th:text="${'₹' + inquiry.offerAmount}">₹0</strong>
+                        </td>
+
+                        <td>
+                            <span class="status-badge warning-badge" th:if="${inquiry.status == 'ACTIVE'}">ACTIVE</span>
+                            <span class="status-badge success-badge" th:if="${inquiry.status == 'ACCEPTED'}">ACCEPTED</span>
+                            <span class="status-badge success-badge" th:if="${inquiry.status == 'BOOKED'}">BOOKED</span>
+                            <span class="status-badge danger-badge" th:if="${inquiry.status == 'REJECTED'}">REJECTED</span>
+                            <span class="status-badge info-badge"
+                                  th:if="${inquiry.status != 'ACTIVE' and inquiry.status != 'ACCEPTED' and inquiry.status != 'BOOKED' and inquiry.status != 'REJECTED'}"
+                                  th:text="${inquiry.status}">STATUS</span>
+                        </td>
+
+                        <td th:text="${inquiry.ownerEmail}">owner@email.com</td>
+
+                        <td class="text-center">
+                            <a th:href="@{'/customer/inquiry/' + ${inquiry.id}}" class="btn-theme btn-sm-action">Open</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-card admin-glass-card">
+            <h3>Quick Actions</h3>
+            <p class="text-muted mb-3">
+                Continue browsing listings, return to your dashboard, or manage wallet balance for upcoming payments.
+            </p>
+
+            <div class="quick-actions">
+                <a th:href="@{/explore}" class="btn-theme">Explore Properties</a>
+                <a th:href="@{/customer/dashboard}" class="btn-accent">Back to Dashboard</a>
+                <a th:href="@{/customer/wallet}" class="btn-dark">Open Wallet</a>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('My Profile | EstateFlow')}"></head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: customer-sidebar('profile')}"></div>
+
+    <main class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('My Profile', 'Manage your personal details and account settings', 'Customer Panel')}"></div>
+
+        <!-- HERO -->
+        <div class="premium-banner">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-4">
+
+                <div class="d-flex align-items-center gap-4 flex-wrap">
+
+                    <!-- PROFILE IMAGE -->
+                    <div style="
+                        width: 92px;
+                        height: 92px;
+                        border-radius: 50%;
+                        overflow: hidden;
+                        box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+                        background: #eee;
+                    ">
+                        <!-- IF IMAGE EXISTS -->
+                        <img th:if="${user.profileImageUrl != null}"
+                             th:src="@{${user.profileImageUrl}}"
+                             style="width:100%; height:100%; object-fit:cover;">
+
+                        <!-- FALLBACK INITIAL -->
+                        <div th:if="${user.profileImageUrl == null}"
+                             style="
+                                width:100%;
+                                height:100%;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                font-size:2rem;
+                                font-weight:700;
+                                color:#fff;
+                                background: linear-gradient(135deg, #0f766e, #d4af37);
+                             ">
+                            <span th:text="${#strings.substring(user.firstName,0,1)}">U</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="hero-badge">Customer Profile</div>
+                        <h2 class="mb-2">
+                            <span th:text="${user.firstName}"></span>
+                            <span th:text="${user.lastName}"></span>
+                        </h2>
+                        <p class="mb-1" th:text="${user.email}"></p>
+                        <small class="text-light">Keep your details updated for a smoother booking and wallet experience.</small>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap">
+                    <a th:href="@{/customer/wallet}" class="btn-accent">Open Wallet</a>
+                    <a th:href="@{/customer/dashboard}" class="btn-theme">Dashboard</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-1">
+
+            <!-- PROFILE FORM -->
+            <div class="col-lg-8">
+                <div class="content-card" style="border-radius: 24px; padding: 2rem;">
+
+                    <h3 class="mb-3">Edit Profile</h3>
+
+                    <!-- IMPORTANT: multipart -->
+                    <form th:action="@{/customer/profile/update}"
+                          method="post"
+                          enctype="multipart/form-data">
+
+                        <div class="row g-3">
+
+                            <!-- IMAGE UPLOAD -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Profile Image</label>
+                                <input type="file"
+                                       name="profileImage"
+                                       class="form-control"
+                                       accept="image/*">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">First Name</label>
+                                <input type="text" name="firstName"
+                                       th:value="${user.firstName}"
+                                       class="form-control" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Last Name</label>
+                                <input type="text" name="lastName"
+                                       th:value="${user.lastName}"
+                                       class="form-control">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email</label>
+                                <input type="email" name="email"
+                                       th:value="${user.email}"
+                                       class="form-control" readonly>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Contact</label>
+                                <input type="text" name="contactNo"
+                                       th:value="${user.contactNo}"
+                                       class="form-control">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">New Password</label>
+                                <input type="password" name="password"
+                                       class="form-control"
+                                       placeholder="Leave blank to keep current password">
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn-accent">Save Changes</button>
+                        </div>
+                    </form>
+
+                    <div th:if="${success}" class="alert alert-success mt-3">
+                        Profile updated successfully.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIDE -->
+            <div class="col-lg-4">
+                <div class="content-card">
+                    <h3>Account Summary</h3>
+                    <p><strong>Wallet:</strong> ₹<span th:text="${user.wallet}"></span></p>
+                    <p><strong>Role:</strong> <span th:text="${user.role}"></span></p>
+                    <p><strong>Status:</strong> <span th:text="${user.enabled ? 'Active' : 'Disabled'}"></span></p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

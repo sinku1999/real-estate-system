@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('PG Bookings | EstateFlow')}"></head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: customer-sidebar('pg-bookings')}"></div>
+
+    <main class="main-content">
+        <div th:replace="~{fragments/topbar :: topbar('PG Bookings', 'Monitor your PG booking activity and progress', 'Customer Panel')}"></div>
+
+        <div class="premium-banner">
+            <div>
+                <div class="hero-badge">PG Stay Activity</div>
+                <h2>Keep your PG bookings organized</h2>
+                <p>Follow your PG booking updates, room decisions, and next actions from a refined customer workspace.</p>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <h4>Total PG Bookings</h4>
+                <h2>0</h2>
+            </div>
+
+            <div class="stat-card">
+                <h4>Confirmed Stays</h4>
+                <h2>0</h2>
+            </div>
+
+            <div class="stat-card">
+                <h4>Pending Requests</h4>
+                <h2>0</h2>
+            </div>
+
+            <div class="stat-card">
+                <h4>Room Updates</h4>
+                <h2>0</h2>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h3>PG Booking Records</h3>
+            <p class="text-muted">All your PG booking entries will appear here once you start booking PG rooms.</p>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Room Type</th>
+                        <th>Status</th>
+                        <th>Monthly Amount</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No PG bookings available yet.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h3>Quick Actions</h3>
+            <div class="quick-actions">
+                <a th:href="@{/explore}" class="btn-theme">Explore Properties</a>
+                <a th:href="@{/customer/dashboard}" class="btn-accent">Back to Dashboard</a>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

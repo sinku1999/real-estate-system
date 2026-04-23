@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Property Review | EstateFlow')}"></head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: admin-sidebar('properties')}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/topbar :: topbar('Property Review', 'Approve or reject listings with powerful admin controls', 'Admin Panel')}"></div>
+
+        <section class="admin-page-hero">
+            <div class="admin-page-hero-content">
+                <div class="hero-badge">Approval Engine</div>
+                <h2>Review and control property quality</h2>
+                <p>
+                    Ensure only high-quality listings go live. Maintain platform trust
+                    by approving valid properties and rejecting incomplete submissions.
+                </p>
+            </div>
+
+            <div class="hero-side-actions">
+                <a th:href="@{/admin/dashboard}" class="btn-theme">Dashboard</a>
+                <a th:href="@{/admin/locations}" class="btn-accent">Locations</a>
+            </div>
+        </section>
+
+        <div th:if="${param.success != null}">
+            <div class="alert-custom-success" th:if="${param.success[0] == 'approved'}">Property approved successfully.</div>
+            <div class="alert-custom-success" th:if="${param.success[0] == 'rejected'}">Property rejected successfully.</div>
+        </div>
+
+        <div class="dashboard-grid dashboard-grid-top">
+            <div class="stat-card stat-card-premium">
+                <h4>Pending</h4>
+                <h2 th:text="${#lists.size(properties.?[status.name() == 'PENDING'])}">0</h2>
+                <p>Waiting for admin review</p>
+            </div>
+
+            <div class="stat-card stat-card-premium">
+                <h4>Approved</h4>
+                <h2 th:text="${#lists.size(properties.?[status.name() == 'APPROVED'])}">0</h2>
+                <p>Live on platform</p>
+            </div>
+
+            <div class="stat-card stat-card-premium">
+                <h4>Rejected</h4>
+                <h2 th:text="${#lists.size(properties.?[status.name() == 'REJECTED'])}">0</h2>
+                <p>Declined listings</p>
+            </div>
+        </div>
+
+        <div class="content-card admin-glass-card">
+            <div class="action-bar">
+                <div>
+                    <h3 class="mb-1">Filter by Status</h3>
+                    <p class="text-muted mb-0">Switch between property states</p>
+                </div>
+            </div>
+
+            <div class="status-tab-wrap">
+                <a th:href="@{/admin/properties(status='PENDING')}"
+                   class="status-tab"
+                   th:classappend="${activeStatus == 'PENDING'} ? ' active-status-tab' : ''">Pending</a>
+
+                <a th:href="@{/admin/properties(status='APPROVED')}"
+                   class="status-tab"
+                   th:classappend="${activeStatus == 'APPROVED'} ? ' active-status-tab' : ''">Approved</a>
+
+                <a th:href="@{/admin/properties(status='REJECTED')}"
+                   class="status-tab"
+                   th:classappend="${activeStatus == 'REJECTED'} ? ' active-status-tab' : ''">Rejected</a>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(properties)}" class="empty-state mt-3">
+            <h4>No properties found</h4>
+            <p>There are no listings in this section.</p>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(properties)}" class="property-grid mt-3">
+
+            <div class="property-card-premium enhanced-property-card" th:each="property : ${properties}">
+
+                <div class="property-image-wrap">
+
+                    <img th:if="${property.imagePath != null and !property.imagePath.isEmpty()}"
+                         th:src="${property.imagePath}"
+                         alt="Property Image"/>
+
+                    <div th:if="${property.imagePath == null or property.imagePath.isEmpty()}"
+                         class="property-image-placeholder">
+                        No Image
+                    </div>
+
+                    <div class="property-badges">
+                        <span class="status-badge info-badge" th:text="${property.listingType}"></span>
+                        <span class="status-badge accent-badge" th:if="${property.pgListing}">PG</span>
+                    </div>
+                </div>
+
+                <div class="property-card-body">
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <h4 class="property-title" th:text="${property.name}"></h4>
+
+                        <span class="status-badge warning-badge" th:if="${property.status.name() == 'PENDING'}">Pending</span>
+                        <span class="status-badge success-badge" th:if="${property.status.name() == 'APPROVED'}">Approved</span>
+                        <span class="status-badge danger-badge" th:if="${property.status.name() == 'REJECTED'}">Rejected</span>
+                    </div>
+
+                    <p class="property-meta"
+                       th:text="${property.location != null ? property.location.name : 'Location not available'}">
+                        Location
+                    </p>
+
+                    <p class="property-desc"
+                       th:text="${property.description != null and !property.description.isEmpty() ? property.description : 'No description'}">
+                    </p>
+
+                    <div class="property-detail-row">
+                        <span>Owner</span>
+                        <strong th:text="${property.owner != null ? property.owner.firstName : 'Not available'}"></strong>
+                    </div>
+
+                    <div class="property-detail-row">
+                        <span>Price</span>
+                        <strong th:text="${property.pgListing ? 'Dynamic' : '₹' + #numbers.formatDecimal(property.price, 0, 'COMMA', 0, 'POINT')}"></strong>
+                    </div>
+
+                    <div class="property-action-bar" th:if="${property.status.name() == 'PENDING'}">
+                        <a th:href="@{/admin/properties/approve/{id}(id=${property.id})}" class="btn-approve">Approve</a>
+                        <a th:href="@{/admin/properties/reject/{id}(id=${property.id})}" class="btn-reject">Reject</a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

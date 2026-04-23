@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Negotiation | EstateFlow')}"></head>
+
+<body>
+
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <div th:replace="~{fragments/sidebar :: customer-sidebar('sale-inquiries')}"></div>
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <div th:replace="~{fragments/topbar :: topbar('Negotiation', 'Discuss, finalize, and move toward deal completion', 'Customer Panel')}"></div>
+
+        <!-- HERO -->
+        <section class="customer-hero">
+            <div class="customer-hero-content">
+                <div class="hero-badge">Deal Conversation</div>
+                <h1>Continue your property negotiation</h1>
+                <p>
+                    Communicate with the owner, finalize your offer,
+                    and move forward to secure the property.
+                </p>
+
+                <div class="hero-actions">
+                    <a th:href="@{/customer/inquiries}" class="btn-theme">Back to Inquiries</a>
+                    <a th:href="@{/explore}" class="btn-accent">Explore More</a>
+                </div>
+            </div>
+
+            <div class="customer-hero-side">
+                <div class="customer-mini-card">
+                    <span>Offer Amount</span>
+                    <strong>₹<span th:text="${inquiry.offerAmount}">0</span></strong>
+                </div>
+                <div class="customer-mini-card">
+                    <span>Status</span>
+                    <strong th:text="${inquiry.status}">ACTIVE</strong>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEGOTIATION CARD -->
+        <div class="content-card admin-glass-card negotiation-card mt-3">
+
+            <!-- HEADER -->
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                <div>
+                    <h3 class="mb-1">Negotiation Chat</h3>
+                    <p class="text-muted mb-0">Exchange messages with the owner</p>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap">
+                    <span class="status-badge warning-badge" th:if="${inquiry.status == 'ACTIVE'}">ACTIVE</span>
+                    <span class="status-badge success-badge" th:if="${inquiry.status == 'ACCEPTED'}">ACCEPTED</span>
+                    <span class="status-badge success-badge" th:if="${inquiry.status == 'BOOKED'}">BOOKED</span>
+                    <span class="status-badge danger-badge" th:if="${inquiry.status == 'REJECTED'}">REJECTED</span>
+                </div>
+            </div>
+
+            <!-- CHAT -->
+            <div class="negotiation-chat-wrap">
+
+                <div th:if="${#lists.isEmpty(messages)}" class="empty-state premium-empty-state">
+                    <h4>No messages yet</h4>
+                    <p>Start the conversation to proceed with this deal.</p>
+                </div>
+
+                <div th:each="m : ${messages}" class="mb-3">
+
+                    <!-- CUSTOMER -->
+                    <div th:if="${m.sender == 'CUSTOMER'}" class="chat-row chat-row-right">
+                        <div class="chat-meta text-end">
+                            <small class="text-muted">You</small>
+                        </div>
+                        <div class="chat-bubble chat-bubble-customer"
+                             th:text="${m.message}">
+                        </div>
+                    </div>
+
+                    <!-- OWNER -->
+                    <div th:if="${m.sender == 'OWNER'}" class="chat-row chat-row-left">
+                        <div class="chat-meta">
+                            <small class="text-muted">Owner</small>
+                        </div>
+                        <div class="chat-bubble chat-bubble-owner"
+                             th:text="${m.message}">
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- SEND MESSAGE -->
+            <form method="post" th:action="@{/customer/inquiry/message}" class="mt-3">
+                <input type="hidden" name="inquiryId" th:value="${inquiry.id}"/>
+
+                <div class="d-flex gap-2 flex-wrap negotiation-input-row">
+                    <input type="text"
+                           name="message"
+                           class="form-control premium-input"
+                           placeholder="Write your message..."
+                           required>
+                    <button class="btn-theme">Send</button>
+                </div>
+            </form>
+
+            <!-- TOKEN PAYMENT -->
+            <div th:if="${inquiry.status == 'ACCEPTED'}" class="token-payment-box mt-4">
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                    <div>
+                        <h4 class="mb-1">Token Payment Ready</h4>
+                        <p class="text-muted mb-0">
+                            Owner accepted your offer. Pay token to confirm booking.
+                        </p>
+                    </div>
+
+                    <div class="token-amount-pill">
+                        ₹10,000
+                    </div>
+                </div>
+
+                <form th:action="@{/payment/token}" method="post">
+                    <input type="hidden" name="inquiryId" th:value="${inquiry.id}"/>
+
+                    <button class="btn-accent w-100">
+                        Pay Token ₹10,000
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>
