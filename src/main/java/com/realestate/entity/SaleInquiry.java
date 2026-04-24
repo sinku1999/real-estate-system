@@ -17,10 +17,8 @@ public class SaleInquiry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ADD THIS FIELD
     private Boolean dealClosed = false;
 
-    // ADD TOKEN PAYMENT
     private BigDecimal tokenAmount;
     private String paymentId;
 
@@ -29,8 +27,6 @@ public class SaleInquiry {
     private String message;
 
     private String status; // ACTIVE / ACCEPTED / REJECTED / CANCELLED / BOOKED
-
-//    private BigDecimal tokenAmount;
 
     private boolean tokenPaid;
 
@@ -57,10 +53,110 @@ public class SaleInquiry {
         if (this.tokenAmount == null) {
             this.tokenAmount = new BigDecimal("10000");
         }
+
+        if (this.dealClosed == null) {
+            this.dealClosed = false;
+        }
     }
 
     @PreUpdate
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Boolean getDealClosed() {
+        return dealClosed;
+    }
+
+    public void setDealClosed(Boolean dealClosed) {
+        this.dealClosed = dealClosed;
+    }
+
+    public BigDecimal getTokenAmount() {
+        return tokenAmount;
+    }
+
+    public void setTokenAmount(BigDecimal tokenAmount) {
+        this.tokenAmount = tokenAmount;
+    }
+
+    public String getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(String paymentId) {
+        this.paymentId = paymentId;
+    }
+
+    public BigDecimal getOfferAmount() {
+        return offerAmount;
+    }
+
+    public void setOfferAmount(BigDecimal offerAmount) {
+        this.offerAmount = offerAmount;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public boolean isTokenPaid() {
+        return tokenPaid;
+    }
+
+    public void setTokenPaid(boolean tokenPaid) {
+        this.tokenPaid = tokenPaid;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public Property getProperty() {
+        return property;
+    }
+
+    public void setProperty(Property property) {
+        this.property = property;
+    }
+
+    public String getCustomerEmail() {
+        return customerEmail;
+    }
+
+    public void setCustomerEmail(String customerEmail) {
+        this.customerEmail = customerEmail;
+    }
+
+    public String getOwnerEmail() {
+        return ownerEmail;
+    }
+
+    public void setOwnerEmail(String ownerEmail) {
+        this.ownerEmail = ownerEmail;
     }
 }
