@@ -22,47 +22,59 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public String createOrder(Double amount) {
+
+        if (amount == null || amount <= 0) {
+            throw new RuntimeException("Invalid amount");
+        }
+
         try {
             RazorpayClient client = new RazorpayClient(key, secret);
 
             JSONObject options = new JSONObject();
-            options.put("amount", (int) (amount * 100));
+            options.put("amount", (int) (amount * 100)); // paise
             options.put("currency", "INR");
             options.put("receipt", "rcpt_" + System.currentTimeMillis());
 
             Order order = client.orders.create(options);
 
-            return order.toString();
+            // 🔥 return clean JSON (important for frontend)
+            JSONObject response = new JSONObject();
+            response.put("id", order.get("id"));
+            response.put("amount", order.get("amount"));
+            response.put("currency", order.get("currency"));
+
+            return response.toString();
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create Razorpay order", e);
+            throw new RuntimeException("Failed to create Razorpay order: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public boolean verifySignature(String razorpayOrderId, String razorpayPaymentId, String razorpaySignature) {
+    public boolean verifySignature(String razorpayOrderId,
+                                   String razorpayPaymentId,
+                                   String razorpaySignature) {
+
         try {
             String data = razorpayOrderId + "|" + razorpayPaymentId;
 
-            Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+            Mac mac = Mac.getInstance("HmacSHA256");
             SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-            sha256Hmac.init(secretKey);
+            mac.init(secretKey);
 
-            byte[] hash = sha256Hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
 
-            StringBuilder hexString = new StringBuilder();
+            StringBuilder hex = new StringBuilder();
             for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
+                String s = Integer.toHexString(0xff & b);
+                if (s.length() == 1) hex.append('0');
+                hex.append(s);
             }
 
-            return hexString.toString().equals(razorpaySignature);
+            return hex.toString().equals(razorpaySignature);
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to verify payment signature", e);
+            throw new RuntimeException("Signature verification failed: " + e.getMessage(), e);
         }
     }
 }

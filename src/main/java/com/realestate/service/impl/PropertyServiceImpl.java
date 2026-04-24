@@ -1,27 +1,25 @@
 package com.realestate.service.impl;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.realestate.dto.PropertyDto;
 import com.realestate.entity.Location;
 import com.realestate.entity.Property;
 import com.realestate.entity.User;
-import com.realestate.enums.*;
+import com.realestate.enums.ListingType;
+import com.realestate.enums.PriceType;
+import com.realestate.enums.PropertyStatus;
+import com.realestate.enums.PropertyType;
 import com.realestate.repository.LocationRepository;
 import com.realestate.repository.PropertyRepository;
 import com.realestate.repository.UserRepository;
 import com.realestate.service.PropertyService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,9 +28,7 @@ public class PropertyServiceImpl implements PropertyService {
     private final PropertyRepository propertyRepository;
     private final UserRepository userRepository;
     private final LocationRepository locationRepository;
-
-    @Value("${file.upload-dir}")
-    private String uploadDir;
+    private final Cloudinary cloudinary;
 
     // ================= ADD =================
     @Override
@@ -65,10 +61,7 @@ public class PropertyServiceImpl implements PropertyService {
             }
         }
 
-        String imagePath = null;
-        if (image != null && !image.isEmpty()) {
-            imagePath = "/uploads/" + saveFile(image);
-        }
+        String imagePath = uploadImageToCloudinary(image);
 
         Property property = Property.builder()
                 .owner(owner)
@@ -115,9 +108,9 @@ public class PropertyServiceImpl implements PropertyService {
         property.setSizeSqFt(dto.getSizeSqFt());
         property.setBhk(dto.getBhk());
 
-        // ✅ Replace image if new one uploaded
         if (image != null && !image.isEmpty()) {
-            property.setImagePath("/uploads/" + saveFile(image));
+            String imagePath = uploadImageToCloudinary(image);
+            property.setImagePath(imagePath);
         }
 
         return propertyRepository.save(property);
@@ -211,32 +204,28 @@ public class PropertyServiceImpl implements PropertyService {
         return propertyRepository.findByStatusAndNameContainingIgnoreCase(PropertyStatus.APPROVED, keyword);
     }
 
-    // ================= FILE SAVE =================
-    private String saveFile(MultipartFile file) {
-
-        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
-        String extension = "";
-
-        int dotIndex = originalFilename.lastIndexOf('.');
-        if (dotIndex >= 0) {
-            extension = originalFilename.substring(dotIndex);
+    // ================= CLOUDINARY UPLOAD =================
+    private String uploadImageToCloudinary(MultipartFile image) {
+        if (image == null || image.isEmpty()) {
+            return null;
         }
-
-        String fileName = UUID.randomUUID() + extension;
 
         try {
-            Path uploadPath = Paths.get(System.getProperty("user.dir"), uploadDir)
-                    .toAbsolutePath().normalize();
+            var uploadResult = cloudinary.uploader().upload(
+                    image.getBytes(),
+                    ObjectUtils.emptyMap()
+            );
 
-            Files.createDirectories(uploadPath);
+            Object secureUrl = uploadResult.get("secure_url");
 
-            Path filePath = uploadPath.resolve(fileName);
-            file.transferTo(filePath.toFile());
+            if (secureUrl == null) {
+                throw new RuntimeException("Cloudinary did not return image URL");
+            }
 
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save image: " + e.getMessage());
+            return secureUrl.toString();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Image upload failed: " + e.getMessage(), e);
         }
-
-        return fileName;
     }
 }

@@ -17,20 +17,29 @@ public class PaymentController {
 
     @PostMapping(value = "/create-order", produces = MediaType.APPLICATION_JSON_VALUE)
     public String createOrder(@RequestParam Double amount) {
+
+        if (amount == null || amount <= 0) {
+            throw new RuntimeException("Invalid amount");
+        }
+
         return paymentService.createOrder(amount);
     }
 
-    @PostMapping("/verify-payment")
-    public String verifyPayment(@RequestParam String razorpay_payment_id,
-                                @RequestParam String razorpay_order_id,
-                                @RequestParam String razorpay_signature,
+    @PostMapping(value = "/verify-payment", produces = MediaType.TEXT_PLAIN_VALUE)
+    public String verifyPayment(@RequestParam("razorpay_payment_id") String razorpayPaymentId,
+                                @RequestParam("razorpay_order_id") String razorpayOrderId,
+                                @RequestParam("razorpay_signature") String razorpaySignature,
                                 @RequestParam Double amount,
                                 Principal principal) {
 
+        if (principal == null || principal.getName() == null) {
+            throw new RuntimeException("User not logged in");
+        }
+
         boolean isValid = paymentService.verifySignature(
-                razorpay_order_id,
-                razorpay_payment_id,
-                razorpay_signature
+                razorpayOrderId,
+                razorpayPaymentId,
+                razorpaySignature
         );
 
         if (!isValid) {
