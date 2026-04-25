@@ -24,7 +24,7 @@ public interface PropertyService {
     void deleteProperty(Long id, String ownerEmail);
 
     List<Property> getOwnerProperties(String ownerEmail);
-
+    
     List<Property> getOwnerPropertiesByStatus(String ownerEmail, PropertyStatus status);
 
     long countOwnerProperties(String ownerEmail);
