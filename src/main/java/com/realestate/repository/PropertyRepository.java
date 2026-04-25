@@ -14,6 +14,8 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 
     List<Property> findByLocation_Name(String location);
 
+    List<Property> findByLocation_NameContainingIgnoreCase(String location);
+
     @Query("SELECT DISTINCT p.location.name FROM Property p WHERE p.location IS NOT NULL ORDER BY p.location.name")
     List<String> findDistinctLocations();
 

@@ -31,17 +31,17 @@ public class PaymentServiceImpl implements PaymentService {
             RazorpayClient client = new RazorpayClient(key, secret);
 
             JSONObject options = new JSONObject();
-            options.put("amount", (int) (amount * 100)); // paise
+            options.put("amount", (int) Math.round(amount * 100));
             options.put("currency", "INR");
             options.put("receipt", "rcpt_" + System.currentTimeMillis());
 
             Order order = client.orders.create(options);
 
-            // 🔥 return clean JSON (important for frontend)
             JSONObject response = new JSONObject();
-            response.put("id", order.get("id"));
-            response.put("amount", order.get("amount"));
-            response.put("currency", order.get("currency"));
+            response.put("key", key);
+            response.put("id", String.valueOf(order.get("id")));
+            response.put("amount", Integer.parseInt(String.valueOf(order.get("amount"))));
+            response.put("currency", String.valueOf(order.get("currency")));
 
             return response.toString();
 
@@ -59,7 +59,10 @@ public class PaymentServiceImpl implements PaymentService {
             String data = razorpayOrderId + "|" + razorpayPaymentId;
 
             Mac mac = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(
+                    secret.getBytes(StandardCharsets.UTF_8),
+                    "HmacSHA256"
+            );
             mac.init(secretKey);
 
             byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
@@ -67,7 +70,9 @@ public class PaymentServiceImpl implements PaymentService {
             StringBuilder hex = new StringBuilder();
             for (byte b : hash) {
                 String s = Integer.toHexString(0xff & b);
-                if (s.length() == 1) hex.append('0');
+                if (s.length() == 1) {
+                    hex.append('0');
+                }
                 hex.append(s);
             }
 

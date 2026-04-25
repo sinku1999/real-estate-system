@@ -39,10 +39,7 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public List<String> getAllLocations() {
-        return locationRepository.findAll()
-                .stream()
-                .map(Location::getName)
-                .toList();
+        return propertyRepository.findDistinctLocations();
     }
 
     @Override
@@ -69,7 +66,6 @@ public class PropertyServiceImpl implements PropertyService {
                 .price(propertyDto.getPrice())
                 .listingType(propertyDto.getListingType())
                 .propertyType(propertyDto.getPropertyType())
-                .priceType(propertyDto.getPriceType())
                 .pgListing(propertyDto.isPgListing())
                 .status(PropertyStatus.PENDING)
                 .location(location)
@@ -82,10 +78,13 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public Property updateProperty(Long id, String ownerEmail, PropertyDto propertyDto, MultipartFile image) {
+        User owner = userRepository.findByEmail(ownerEmail)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
 
-        if (property.getOwner() == null || !property.getOwner().getEmail().equals(ownerEmail)) {
+        if (property.getOwner() == null || !property.getOwner().getId().equals(owner.getId())) {
             throw new RuntimeException("You are not allowed to update this property");
         }
 
@@ -100,7 +99,6 @@ public class PropertyServiceImpl implements PropertyService {
         property.setPrice(propertyDto.getPrice());
         property.setListingType(propertyDto.getListingType());
         property.setPropertyType(propertyDto.getPropertyType());
-        property.setPriceType(propertyDto.getPriceType());
         property.setPgListing(propertyDto.isPgListing());
         property.setLocation(location);
 
@@ -113,10 +111,13 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public void deleteProperty(Long id, String ownerEmail) {
+        User owner = userRepository.findByEmail(ownerEmail)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
 
-        if (property.getOwner() == null || !property.getOwner().getEmail().equals(ownerEmail)) {
+        if (property.getOwner() == null || !property.getOwner().getId().equals(owner.getId())) {
             throw new RuntimeException("You are not allowed to delete this property");
         }
 
@@ -125,17 +126,26 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public List<Property> getOwnerProperties(String ownerEmail) {
-        return propertyRepository.findByOwner_Email(ownerEmail);
+        User owner = userRepository.findByEmail(ownerEmail)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        return propertyRepository.findByOwner(owner);
     }
 
     @Override
     public List<Property> getOwnerPropertiesByStatus(String ownerEmail, PropertyStatus status) {
-        return propertyRepository.findByOwner_EmailAndStatus(ownerEmail, status);
+        User owner = userRepository.findByEmail(ownerEmail)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        return propertyRepository.findByOwnerAndStatus(owner, status);
     }
 
     @Override
     public long countOwnerProperties(String ownerEmail) {
-        return propertyRepository.countByOwner_Email(ownerEmail);
+        User owner = userRepository.findByEmail(ownerEmail)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        return propertyRepository.countByOwner(owner);
     }
 
     @Override
@@ -154,10 +164,7 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public List<Property> searchApprovedProperties(String keyword) {
-        return propertyRepository.findByStatusAndNameContainingIgnoreCase(
-                PropertyStatus.APPROVED,
-                keyword
-        );
+        return propertyRepository.findByStatusAndNameContainingIgnoreCase(PropertyStatus.APPROVED, keyword);
     }
 
     @Override
