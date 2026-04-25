@@ -31,9 +31,8 @@ public class Property {
 
     private Integer sizeSqFt;
 
+    // ✅ ONLY ONE IMAGE FIELD (IMPORTANT)
     private String imageUrl;
-
-    private String imagePath;
 
     private boolean pgListing;
 
@@ -51,7 +50,6 @@ public class Property {
     @Enumerated(EnumType.STRING)
     private PropertyStatus status;
 
-    // ✅ ONLY THIS SHOULD EXIST
     @ManyToOne
     private User owner;
 

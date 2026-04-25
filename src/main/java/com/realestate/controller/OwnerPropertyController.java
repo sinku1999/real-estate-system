@@ -21,7 +21,6 @@ public class OwnerPropertyController {
     private final PropertyService propertyService;
     private final LocationService locationService;
 
-    // 📌 Show all owner properties
     @GetMapping
     public String viewProperties(Authentication auth, Model model) {
         String email = auth.getName();
@@ -30,7 +29,6 @@ public class OwnerPropertyController {
         return "owner/property-list";
     }
 
-    // 📌 Add Property Page
     @GetMapping("/add")
     public String addPropertyPage(Model model) {
         model.addAttribute("propertyDto", new PropertyDto());
@@ -39,10 +37,9 @@ public class OwnerPropertyController {
         return "owner/property-form";
     }
 
-    // 📌 Save Property
     @PostMapping("/add")
     public String saveProperty(@ModelAttribute PropertyDto propertyDto,
-                               @RequestParam("image") MultipartFile image,
+                               @RequestParam(value = "image", required = false) MultipartFile image,
                                Authentication auth) {
 
         String email = auth.getName();
@@ -51,7 +48,6 @@ public class OwnerPropertyController {
         return "redirect:/owner/properties?success=added";
     }
 
-    // 📌 Edit Property Page
     @GetMapping("/edit/{id}")
     public String editPropertyPage(@PathVariable Long id, Model model) {
         Property property = propertyService.getPropertyById(id);
@@ -81,7 +77,6 @@ public class OwnerPropertyController {
         return "owner/property-form";
     }
 
-    // 📌 Update Property
     @PostMapping("/edit/{id}")
     public String updateProperty(@PathVariable Long id,
                                  @ModelAttribute PropertyDto propertyDto,
@@ -94,7 +89,6 @@ public class OwnerPropertyController {
         return "redirect:/owner/properties?success=updated";
     }
 
-    // 📌 Delete Property
     @GetMapping("/delete/{id}")
     public String deleteProperty(@PathVariable Long id, Authentication auth) {
         String email = auth.getName();

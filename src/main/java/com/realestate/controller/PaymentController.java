@@ -16,7 +16,12 @@ public class PaymentController {
     private final WalletService walletService;
 
     @PostMapping(value = "/create-order", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String createOrder(@RequestParam Double amount) {
+    public String createOrder(@RequestParam("amount") Double amount,
+                              Principal principal) {
+
+        if (principal == null || principal.getName() == null) {
+            throw new RuntimeException("User not logged in");
+        }
 
         if (amount == null || amount <= 0) {
             throw new RuntimeException("Invalid amount");
@@ -29,11 +34,15 @@ public class PaymentController {
     public String verifyPayment(@RequestParam("razorpay_payment_id") String razorpayPaymentId,
                                 @RequestParam("razorpay_order_id") String razorpayOrderId,
                                 @RequestParam("razorpay_signature") String razorpaySignature,
-                                @RequestParam Double amount,
+                                @RequestParam("amount") Double amount,
                                 Principal principal) {
 
         if (principal == null || principal.getName() == null) {
             throw new RuntimeException("User not logged in");
+        }
+
+        if (amount == null || amount <= 0) {
+            throw new RuntimeException("Invalid amount");
         }
 
         boolean isValid = paymentService.verifySignature(

@@ -1,199 +1,129 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: common-head(${pageMode == 'edit'} ? 'Edit Property | EstateFlow' : 'Add Property | EstateFlow')}"></head>
-<body>
+package com.realestate.service.impl;
 
-<div class="app-layout">
-    <div th:replace="~{fragments/sidebar :: owner-sidebar(${pageMode == 'edit'} ? 'my-properties' : 'add-property')}"></div>
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import com.realestate.dto.PropertyDto;
+import com.realestate.entity.Location;
+import com.realestate.entity.Property;
+import com.realestate.entity.User;
+import com.realestate.repository.LocationRepository;
+import com.realestate.repository.PropertyRepository;
+import com.realestate.repository.UserRepository;
+import com.realestate.service.PropertyService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-    <main class="main-content">
+import java.util.List;
+import java.util.Map;
 
-        <div th:replace="~{fragments/topbar :: topbar(
-            ${pageMode == 'edit'} ? 'Edit Property' : 'Add Property',
-            ${pageMode == 'edit'} ? 'Update your listing details with a premium editing experience' : 'Create a high-quality listing to attract buyers and renters',
-            'Owner Panel')}"></div>
+@Service
+@RequiredArgsConstructor
+public class PropertyServiceImpl implements PropertyService {
 
-        <section class="admin-page-hero compact-hero">
-            <div class="admin-page-hero-content">
-                <div class="hero-badge" th:text="${pageMode == 'edit'} ? 'Update Listing' : 'New Listing'">New Listing</div>
-                <h2 th:text="${pageMode == 'edit'} ? 'Edit your property listing' : 'Create a premium property listing'">Create a premium property listing</h2>
-                <p>
-                    Add complete details, images, and pricing to make your property stand out
-                    and get faster approvals from the platform.
-                </p>
-            </div>
+private final PropertyRepository propertyRepository;
+private final UserRepository userRepository;
+private final LocationRepository locationRepository;
+private final Cloudinary cloudinary;
 
-            <div class="hero-side-actions">
-                <a th:href="@{/owner/properties}" class="btn-theme">My Properties</a>
-                <a th:href="@{/owner/dashboard}" class="btn-dark">Dashboard</a>
-            </div>
-        </section>
-
-        <div class="form-page-wrap admin-form-wrap">
-            <div class="form-card-custom admin-form-card">
-
-                <div class="form-card-header">
-                    <div>
-                        <h3 th:text="${pageMode == 'edit'} ? 'Update Property' : 'Create New Property'">Create New Property</h3>
-                        <p class="text-muted mb-0">
-                            Fill all required details to create a complete and professional listing.
-                        </p>
-                    </div>
-
-                    <div class="form-mode-pill" th:text="${pageMode == 'edit'} ? 'Edit' : 'Create'">Create</div>
-                </div>
-
-                <form method="post"
-                      th:action="${pageMode == 'edit'} ? @{'/owner/properties/edit/' + ${propertyId}} : @{/owner/properties/add}"
-                      th:object="${propertyDto}"
-                      enctype="multipart/form-data"
-                      class="premium-form-layout">
-
-                    <div class="row g-3">
-
-                        <div class="col-md-6">
-                            <label class="form-label">Property Name</label>
-                            <input type="text"
-                                   th:field="*{name}"
-                                   class="form-control premium-input"
-                                   placeholder="e.g. Luxury 2BHK in Delhi"
-                                   required>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Location</label>
-                            <select th:field="*{locationId}" class="form-select premium-input" required>
-                                <option value="">Select Location</option>
-                                <option th:each="loc : ${locations}"
-                                        th:value="${loc.id}"
-                                        th:text="${loc.name}">
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Price (₹)</label>
-                            <input type="number"
-                                   th:field="*{price}"
-                                   class="form-control premium-input"
-                                   placeholder="Enter price"
-                                   required>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Property Type</label>
-                            <select th:field="*{propertyType}" class="form-select premium-input" required>
-                                <option value="FLAT">Flat</option>
-                                <option value="HOUSE">House</option>
-                                <option value="VILLA">Villa</option>
-                                <option value="PG">PG</option>
-                                <option value="PLOT">Plot</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Listing Type</label>
-                            <select th:field="*{listingType}" class="form-select premium-input" required>
-                                <option value="SALE">Sale</option>
-                                <option value="RENT">Rent</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Address</label>
-                            <input type="text"
-                                   th:field="*{address}"
-                                   class="form-control premium-input"
-                                   placeholder="Full address"
-                                   required>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">BHK</label>
-                            <input type="text"
-                                   th:field="*{bhk}"
-                                   class="form-control premium-input"
-                                   placeholder="e.g. 2BHK">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Size (Sq Ft)</label>
-                            <input type="number"
-                                   th:field="*{sizeSqFt}"
-                                   class="form-control premium-input"
-                                   placeholder="e.g. 1200">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Upload Image</label>
-                            <input type="file"
-                                   name="image"
-                                   id="imageInput"
-                                   class="form-control premium-input"
-                                   accept="image/*">
-
-                            <small class="text-muted" th:if="${pageMode == 'edit'}">
-                                Leave empty if you do not want to change the current image.
-                            </small>
-
-                            <div id="imagePreviewBox" class="mt-3" style="display:none;">
-                                <img id="imagePreview"
-                                     alt="Preview"
-                                     style="width:100%; height:180px; object-fit:cover; border-radius:14px;">
-                            </div>
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label">Description</label>
-                            <textarea th:field="*{description}"
-                                      class="form-control premium-input"
-                                      rows="5"
-                                      placeholder="Describe the property, amenities, nearby areas..."
-                                      required></textarea>
-
-                            <small class="text-muted">
-                                Tip: Mention nearby schools, hospitals, transport, parking, and furnishing details.
-                            </small>
-                        </div>
-
-                    </div>
-
-                    <div class="form-action-bar mt-3">
-                        <button type="submit"
-                                class="btn-accent"
-                                th:text="${pageMode == 'edit'} ? 'Update Property' : 'Add Property'">
-                            Add Property
-                        </button>
-                        <a th:href="@{/owner/properties}" class="btn-light-soft">Cancel</a>
-                    </div>
-
-                </form>
-
-            </div>
-        </div>
-
-    </main>
-</div>
-
-<script>
-    const imageInput = document.getElementById("imageInput");
-    const previewBox = document.getElementById("imagePreviewBox");
-    const previewImg = document.getElementById("imagePreview");
-
-    if (imageInput) {
-        imageInput.addEventListener("change", function () {
-            const file = this.files[0];
-
-            if (file) {
-                previewImg.src = URL.createObjectURL(file);
-                previewBox.style.display = "block";
-            } else {
-                previewImg.src = "";
-                previewBox.style.display = "none";
-            }
-        });
+@Override
+public List<Property> getOwnerProperties(String email) {
+    return propertyRepository.findByOwnerEmail(email);
     }
-</script>
 
-</body>
-</html>
+    @Override
+    public Property getPropertyById(Long id) {
+    return propertyRepository.findById(id)
+    .orElseThrow(() -> new RuntimeException("Property not found"));
+    }
+
+    @Override
+    public void addProperty(String email, PropertyDto dto, MultipartFile image) {
+
+    User owner = userRepository.findByEmail(email)
+    .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+    Location location = locationRepository.findById(dto.getLocationId())
+    .orElseThrow(() -> new RuntimeException("Location not found"));
+
+    String imageUrl = uploadToCloudinary(image);
+
+    Property property = Property.builder()
+    .name(dto.getName())
+    .description(dto.getDescription())
+    .address(dto.getAddress())
+    .bhk(dto.getBhk())
+    .sizeSqFt(dto.getSizeSqFt())
+    .price(dto.getPrice())
+    .listingType(dto.getListingType())
+    .propertyType(dto.getPropertyType())
+    .pgListing(dto.isPgListing())
+    .location(location)
+    .owner(owner)
+    .imageUrl(imageUrl)
+    .build();
+
+    propertyRepository.save(property);
+    }
+
+    @Override
+    public void updateProperty(Long id, String email, PropertyDto dto, MultipartFile image) {
+
+    Property property = propertyRepository.findById(id)
+    .orElseThrow(() -> new RuntimeException("Property not found"));
+
+    property.setName(dto.getName());
+    property.setDescription(dto.getDescription());
+    property.setAddress(dto.getAddress());
+    property.setBhk(dto.getBhk());
+    property.setSizeSqFt(dto.getSizeSqFt());
+    property.setPrice(dto.getPrice());
+    property.setListingType(dto.getListingType());
+    property.setPropertyType(dto.getPropertyType());
+    property.setPgListing(dto.isPgListing());
+
+    Location location = locationRepository.findById(dto.getLocationId())
+    .orElseThrow(() -> new RuntimeException("Location not found"));
+
+    property.setLocation(location);
+
+    if (image != null && !image.isEmpty()) {
+    String imageUrl = uploadToCloudinary(image);
+    property.setImageUrl(imageUrl);
+    }
+
+    propertyRepository.save(property);
+    }
+
+    @Override
+    public void deleteProperty(Long id, String email) {
+    propertyRepository.deleteById(id);
+    }
+
+    private String uploadToCloudinary(MultipartFile file) {
+    if (file == null || file.isEmpty()) {
+    return null;
+    }
+
+    try {
+    Map<?, ?> uploadResult = cloudinary.uploader().upload(
+    file.getBytes(),
+    ObjectUtils.asMap(
+    "folder", "estateflow/properties",
+    "resource_type", "image"
+    )
+    );
+
+    Object secureUrl = uploadResult.get("secure_url");
+
+    if (secureUrl == null) {
+    throw new RuntimeException("Cloudinary did not return image URL");
+    }
+
+    return secureUrl.toString();
+
+    } catch (Exception e) {
+    throw new RuntimeException("Image upload failed: " + e.getMessage(), e);
+    }
+    }
+    }

@@ -1,81 +1,122 @@
 package com.realestate.service.impl;
 
-import com.razorpay.Order;
-import com.razorpay.RazorpayClient;
-import com.realestate.service.PaymentService;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import com.realestate.dto.PropertyDto;
+import com.realestate.entity.Location;
+import com.realestate.entity.Property;
+import com.realestate.entity.User;
+import com.realestate.repository.LocationRepository;
+import com.realestate.repository.PropertyRepository;
+import com.realestate.repository.UserRepository;
+import com.realestate.service.PropertyService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 
 @Service
-public class PaymentServiceImpl implements PaymentService {
+@RequiredArgsConstructor
+public class PropertyServiceImpl implements PropertyService {
 
-    @Value("${razorpay.key}")
-    private String key;
-
-    @Value("${razorpay.secret}")
-    private String secret;
+    private final PropertyRepository propertyRepository;
+    private final UserRepository userRepository;
+    private final LocationRepository locationRepository;
+    private final Cloudinary cloudinary;
 
     @Override
-    public String createOrder(Double amount) {
-
-        if (amount == null || amount <= 0) {
-            throw new RuntimeException("Invalid amount");
-        }
-
-        try {
-            RazorpayClient client = new RazorpayClient(key, secret);
-
-            JSONObject options = new JSONObject();
-            options.put("amount", (int) (amount * 100));
-            options.put("currency", "INR");
-            options.put("receipt", "rcpt_" + System.currentTimeMillis());
-
-            Order order = client.orders.create(options);
-
-            JSONObject response = new JSONObject();
-            response.put("id", String.valueOf(order.get("id")));
-            response.put("amount", Integer.parseInt(String.valueOf(order.get("amount"))));
-            response.put("currency", String.valueOf(order.get("currency")));
-
-            return response.toString();
-
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create Razorpay order: " + e.getMessage(), e);
-        }
+    public List<Property> getOwnerProperties(String email) {
+        return propertyRepository.findByOwnerEmail(email);
     }
 
     @Override
-    public boolean verifySignature(String razorpayOrderId,
-                                   String razorpayPaymentId,
-                                   String razorpaySignature) {
+    public Property getPropertyById(Long id) {
+        return propertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Property not found"));
+    }
+
+    @Override
+    public void addProperty(String email, PropertyDto dto, MultipartFile image) {
+
+        User owner = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        Location location = locationRepository.findById(dto.getLocationId())
+                .orElseThrow(() -> new RuntimeException("Location not found"));
+
+        String imageUrl = uploadImageToCloudinary(image);
+
+        Property property = Property.builder()
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .address(dto.getAddress())
+                .bhk(dto.getBhk())
+                .sizeSqFt(dto.getSizeSqFt())
+                .price(dto.getPrice())
+                .listingType(dto.getListingType())
+                .propertyType(dto.getPropertyType())
+                .pgListing(dto.isPgListing())
+                .location(location)
+                .owner(owner)
+                .imageUrl(imageUrl)
+                .build();
+
+        propertyRepository.save(property);
+    }
+
+    @Override
+    public void updateProperty(Long id, String email, PropertyDto dto, MultipartFile image) {
+
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Property not found"));
+
+        property.setName(dto.getName());
+        property.setDescription(dto.getDescription());
+        property.setAddress(dto.getAddress());
+        property.setBhk(dto.getBhk());
+        property.setSizeSqFt(dto.getSizeSqFt());
+        property.setPrice(dto.getPrice());
+        property.setListingType(dto.getListingType());
+        property.setPropertyType(dto.getPropertyType());
+        property.setPgListing(dto.isPgListing());
+
+        Location location = locationRepository.findById(dto.getLocationId())
+                .orElseThrow(() -> new RuntimeException("Location not found"));
+        property.setLocation(location);
+
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = uploadImageToCloudinary(image);
+            property.setImageUrl(imageUrl);
+        }
+
+        propertyRepository.save(property);
+    }
+
+    @Override
+    public void deleteProperty(Long id, String email) {
+        propertyRepository.deleteById(id);
+    }
+
+    private String uploadImageToCloudinary(MultipartFile image) {
+        if (image == null || image.isEmpty()) {
+            return null;
+        }
 
         try {
-            String data = razorpayOrderId + "|" + razorpayPaymentId;
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                    image.getBytes(),
+                    ObjectUtils.asMap(
+                            "folder", "real-estate-properties",
+                            "resource_type", "image"
+                    )
+            );
 
-            Mac mac = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-            mac.init(secretKey);
-
-            byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-
-            StringBuilder hex = new StringBuilder();
-            for (byte b : hash) {
-                String s = Integer.toHexString(0xff & b);
-                if (s.length() == 1) {
-                    hex.append('0');
-                }
-                hex.append(s);
-            }
-
-            return hex.toString().equals(razorpaySignature);
+            return uploadResult.get("secure_url").toString();
 
         } catch (Exception e) {
-            throw new RuntimeException("Signature verification failed: " + e.getMessage(), e);
+            throw new RuntimeException("Image upload failed: " + e.getMessage(), e);
         }
     }
 }

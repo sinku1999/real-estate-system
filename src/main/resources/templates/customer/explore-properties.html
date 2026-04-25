@@ -17,7 +17,7 @@
                 <div class="hero-badge">Property Explorer</div>
                 <h2>Discover your next home with confidence</h2>
                 <p>
-                    Compare listings, inspect pricing, and move smoothly from browsing to inquiry with a clean experience.
+                    Compare listings, inspect pricing, and move smoothly from browsing to inquiry.
                 </p>
             </div>
 
@@ -27,27 +27,20 @@
             </div>
         </section>
 
-        <div class="content-card admin-glass-card mb-4">
-
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-2">
-                <div>
-                    <h3 class="mb-1">Search & Filter</h3>
-                    <p class="text-muted mb-0">Refine listings by name and location</p>
-                </div>
-            </div>
-
-            <form method="get" class="row g-3 mt-1">
+        <!-- SEARCH -->
+        <div class="content-card mb-4">
+            <form method="get" class="row g-3">
 
                 <div class="col-md-5">
                     <input type="text"
                            name="keyword"
-                           class="form-control premium-input"
+                           class="form-control"
                            placeholder="Search property..."
                            th:value="${param.keyword}">
                 </div>
 
                 <div class="col-md-4">
-                    <select name="location" class="form-select premium-input">
+                    <select name="location" class="form-select">
                         <option value="">All Locations</option>
 
                         <option th:each="loc : ${locations}"
@@ -65,86 +58,60 @@
             </form>
         </div>
 
-        <div class="dashboard-grid dashboard-grid-top mb-4">
-
-            <div class="stat-card stat-card-premium">
+        <!-- STATS -->
+        <div class="dashboard-grid mb-4">
+            <div class="stat-card">
                 <h4>Total Listings</h4>
                 <h2 th:text="${#lists.size(properties)}">0</h2>
-                <p>Available properties</p>
             </div>
 
-            <div class="stat-card stat-card-premium">
+            <div class="stat-card">
                 <h4>With Images</h4>
-                <h2 th:text="${#lists.size(properties.?[imagePath != null and !imagePath.isEmpty()])}">0</h2>
-                <p>Visually ready listings</p>
+                <h2 th:text="${#lists.size(properties.?[imageUrl != null and !imageUrl.isEmpty()])}">0</h2>
             </div>
 
-            <div class="stat-card stat-card-premium">
+            <div class="stat-card">
                 <h4>No Image</h4>
-                <h2 th:text="${#lists.size(properties.?[imagePath == null or imagePath.isEmpty()])}">0</h2>
-                <p>Needs improvement</p>
+                <h2 th:text="${#lists.size(properties.?[imageUrl == null or imageUrl.isEmpty()])}">0</h2>
             </div>
-
         </div>
 
-        <div class="mb-3">
-            <h3 class="mb-1">Available Properties</h3>
-            <p class="text-muted mb-0">Browse all matching listings below.</p>
-        </div>
-
+        <!-- PROPERTY LIST -->
         <div class="property-grid">
 
-            <div th:each="property : ${properties}" class="property-card-premium enhanced-property-card">
+            <div th:each="property : ${properties}" class="property-card">
 
+                <!-- IMAGE -->
                 <div class="property-image-wrap">
 
-                    <img th:if="${property.imagePath != null and !property.imagePath.isEmpty()}"
-                         th:src="${property.imagePath}"
-                         alt="Property Image"/>
+                    <!-- ✅ FIXED IMAGE -->
+                    <img th:if="${property.imageUrl != null and !property.imageUrl.isEmpty()}"
+                         th:src="${property.imageUrl}"
+                         alt="Property Image"
+                         style="width:100%; height:200px; object-fit:cover; border-radius:12px;" />
 
-                    <div th:if="${property.imagePath == null or property.imagePath.isEmpty()}"
+                    <!-- FALLBACK -->
+                    <div th:if="${property.imageUrl == null or property.imageUrl.isEmpty()}"
                          class="property-image-placeholder">
                         No Image
                     </div>
 
-                    <div class="property-badges">
-
-                        <span class="status-badge success-badge"
-                              th:if="${property.listingType != null and property.listingType.name() == 'RENT'}">Rent</span>
-
-                        <span class="status-badge accent-badge"
-                              th:if="${property.listingType != null and property.listingType.name() == 'SALE'}">Sale</span>
-
-                        <span class="status-badge warning-badge"
-                              th:if="${property.pgListing == true}">PG</span>
-
-                    </div>
                 </div>
 
+                <!-- DETAILS -->
                 <div class="property-card-body">
 
-                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                        <h5 class="property-title" th:text="${property.name}">Property</h5>
-                        <span class="property-type-pill" th:text="${property.propertyType}">Type</span>
+                    <h5 th:text="${property.name}">Property</h5>
+
+                    <p th:text="${property.location != null ? property.location.name : 'Location not available'}"></p>
+
+                    <p th:text="${property.description != null ? property.description : 'No description'}"></p>
+
+                    <div>
+                        ₹<span th:text="${property.price}"></span>
                     </div>
 
-                    <p class="property-meta"
-                       th:text="${property.location != null ? property.location.name : 'Location not available'}">
-                        Location
-                    </p>
-
-                    <p class="property-desc"
-                       th:text="${property.description != null and !property.description.isEmpty() ? property.description : 'No description'}">
-                    </p>
-
-                    <div class="property-detail-row">
-                        <span>Price</span>
-                        <strong>
-                            ₹<span th:text="${property.price != null ? #numbers.formatDecimal(property.price, 0, 'COMMA', 0, 'POINT') : '0'}"></span>
-                        </strong>
-                    </div>
-
-                    <div class="d-grid mt-2">
+                    <div class="mt-2">
                         <a th:href="@{'/property/' + ${property.id}}"
                            class="btn-accent">
                             View Details
@@ -157,26 +124,10 @@
 
         </div>
 
-        <div th:if="${#lists.isEmpty(properties)}"
-             class="content-card premium-empty-state mt-4 text-center">
-
+        <!-- EMPTY -->
+        <div th:if="${#lists.isEmpty(properties)}" class="text-center mt-4">
             <h4>No Properties Found</h4>
-            <p class="text-muted">Try adjusting filters or search terms</p>
-
-            <a th:href="@{/explore}" class="btn-theme">Reset Search</a>
-        </div>
-
-        <div class="content-card mt-4">
-            <h3>Quick Actions</h3>
-            <p class="text-muted mb-3">
-                Navigate faster between your dashboard, wallet, and inquiries.
-            </p>
-
-            <div class="quick-actions">
-                <a th:href="@{/customer/dashboard}" class="btn-theme">Dashboard</a>
-                <a th:href="@{/customer/inquiries}" class="btn-accent">My Inquiries</a>
-                <a th:href="@{/customer/wallet}" class="btn-theme">Wallet</a>
-            </div>
+            <p>Try different filters</p>
         </div>
 
     </main>
