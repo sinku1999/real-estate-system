@@ -53,13 +53,11 @@
                 <!-- IMAGE -->
                 <div class="property-image-wrap">
 
-                    <!-- ✅ FIXED IMAGE DISPLAY -->
                     <img th:if="${property.imageUrl != null and !property.imageUrl.isEmpty()}"
                          th:src="${property.imageUrl}"
                          alt="Property Image"
                          style="width:100%; height:200px; object-fit:cover; border-radius:12px;">
 
-                    <!-- FALLBACK -->
                     <div th:if="${property.imageUrl == null or property.imageUrl.isEmpty()}"
                          class="property-image-placeholder">
                         No Image
@@ -88,14 +86,21 @@
                         <span th:text="${property.imageUrl != null ? 'Image Uploaded' : 'No Image'}"></span>
                     </div>
 
+                    <!-- ✅ FIXED BUTTONS -->
                     <div class="property-action-bar">
-                        <a th:href="@{'/owner/properties/edit/' + ${property.id}}" class="btn-theme">Edit</a>
+
+                        <a th:href="@{'/owner/properties/edit/' + ${property.id}}"
+                           class="btn-theme">
+                            Edit
+                        </a>
 
                         <a href="javascript:void(0);"
+                           class="btn-delete-premium"
                            th:attr="data-delete-url=@{'/owner/properties/delete/' + ${property.id}}"
                            onclick="confirmDelete(this)">
                             Delete
                         </a>
+
                     </div>
 
                 </div>
