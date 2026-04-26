@@ -75,13 +75,13 @@
 
             <div class="stat-card stat-card-premium">
                 <h4>With Images</h4>
-                <h2 th:text="${properties != null ? #lists.size(properties.?[imagePath != null and !imagePath.isEmpty()]) : 0}">0</h2>
+                <h2 th:text="${properties != null ? #lists.size(properties.?[imageUrl != null and !imageUrl.isEmpty()]) : 0}">0</h2>
                 <p>Listings with visuals</p>
             </div>
 
             <div class="stat-card stat-card-premium">
                 <h4>No Image</h4>
-                <h2 th:text="${properties != null ? #lists.size(properties.?[imagePath == null or imagePath.isEmpty()]) : 0}">0</h2>
+                <h2 th:text="${properties != null ? #lists.size(properties.?[imageUrl == null or imageUrl.isEmpty()]) : 0}">0</h2>
                 <p>Needs improvement</p>
             </div>
 
@@ -93,11 +93,12 @@
 
                 <div class="property-image-wrap">
 
-                    <img th:if="${property.imagePath != null and !property.imagePath.isEmpty()}"
-                         th:src="${property.imagePath}"
-                         alt="Property Image"/>
+                    <img th:if="${property.imageUrl != null and !property.imageUrl.isEmpty()}"
+                         th:src="${property.imageUrl}"
+                         alt="Property Image"
+                         style="width:100%; height:200px; object-fit:cover; border-radius:12px;" />
 
-                    <div th:if="${property.imagePath == null or property.imagePath.isEmpty()}"
+                    <div th:if="${property.imageUrl == null or property.imageUrl.isEmpty()}"
                          class="property-image-placeholder">
                         No Image
                     </div>
